@@ -1,4 +1,4 @@
-rootProject.name = 'kong'
+rootProject.name = 'uia'
 include 'uia'
 include 'manager'
 include 'manager-ui'
