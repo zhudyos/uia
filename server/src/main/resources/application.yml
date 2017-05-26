@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      host: 192.168.31.249
+      port: 10000
+uia:
+  login-form-uri: http://www.google.com

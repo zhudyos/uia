@@ -1,7 +1,6 @@
 package io.zhudy.uia.web
 
-import io.zhudy.uia.resource.AuthorizationResource
-import io.zhudy.uia.resource.OAuthResource
+import io.zhudy.uia.web.v1.OAuth2Resource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.router
@@ -11,17 +10,14 @@ import org.springframework.web.reactive.function.server.router
  */
 @Configuration
 class Routers(
-        val authorizationResource: AuthorizationResource,
-        val oauthResource: OAuthResource
+        val oauth2Resource: OAuth2Resource
 ) {
 
     @Bean
     fun router() = router {
         path("/api/v1/oauth").nest {
-            GET("/authorize", authorizationResource::authorize)
-
-            GET("/token", oauthResource::token)
+            GET("/authorize", oauth2Resource::authorize)
+            GET("/token", oauth2Resource::token)
         }
     }
-
 }

@@ -17,13 +17,13 @@ class ClientRepositoryImpl(
         mongoClient: MongoClient
 ) : ClientRepository {
 
-    val clientColl = mongoClient.getDatabase("uia").getCollection("client")!!
+    val coll = mongoClient.getDatabase("uia").getCollection("client")!!
 
     override fun findByClient(clientId: String): Mono<Client> {
-        val r = clientColl.find(eq("client_id", clientId)).first()
+        val r = coll.find(eq("client_id", clientId)).first()
         return Mono.from(r).map({
             if (it == null) {
-                throw BizCodeException(BizCodes.C_1000)
+                throw BizCodeException(BizCodes.C_2000)
             }
 
             Client(

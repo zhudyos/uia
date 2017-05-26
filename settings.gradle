@@ -1,4 +1,4 @@
 rootProject.name = 'uia'
-include 'uia'
+include 'server'
 include 'manager'
 include 'manager-ui'
