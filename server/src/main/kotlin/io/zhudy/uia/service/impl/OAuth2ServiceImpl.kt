@@ -19,7 +19,10 @@ class OAuth2ServiceImpl(
     }
 
     override fun authorizePassword(username: String, password: String) {
-        userRepository.findByEmail(username)
+        val user = userRepository.findByEmail(username)
+        user.filter {
+            it.password != password
+        }
     }
 
 }

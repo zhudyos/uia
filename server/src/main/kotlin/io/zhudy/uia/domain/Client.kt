@@ -5,5 +5,7 @@ package io.zhudy.uia.domain
  */
 data class Client(
         val clientId: String,
-        val clientSecret: String
+        val clientSecret: String,
+        val redirectUri: String,
+        val scope: String
 )

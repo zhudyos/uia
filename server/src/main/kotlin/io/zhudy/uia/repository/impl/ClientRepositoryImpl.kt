@@ -2,9 +2,9 @@ package io.zhudy.uia.repository.impl
 
 import com.mongodb.client.model.Filters.eq
 import com.mongodb.reactivestreams.client.MongoClient
-import io.zhudy.uia.domain.Client
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
+import io.zhudy.uia.domain.Client
 import io.zhudy.uia.repository.ClientRepository
 import org.springframework.stereotype.Repository
 import reactor.core.publisher.Mono
@@ -28,7 +28,9 @@ class ClientRepositoryImpl(
 
             Client(
                     clientId = it["client_id"] as String,
-                    clientSecret = it["client_secret"] as String
+                    clientSecret = it["client_secret"] as String,
+                    redirectUri = it["redirect_uri"] as String,
+                    scope = it["scope"] as String
             )
         })
     }

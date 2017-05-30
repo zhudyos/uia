@@ -8,5 +8,14 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "uia")
 object UiaProperties {
 
+    var redis = Redis
     var loginFormUri: String = ""
+
+    /**
+     *
+     */
+    object Redis {
+        var host = "localhost"
+        var port = 6379
+    }
 }
