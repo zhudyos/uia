@@ -37,8 +37,6 @@ class OAuth2ServiceImpl(
             if (it.t2.password != pai.password) {
                 return@subscribe
             }
-
-
         }
     }!!
 
