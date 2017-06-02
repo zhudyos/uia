@@ -1,15 +1,15 @@
 package io.zhudy.uia.web.v1
 
-import io.zhudy.uia.BizCodeException
-import io.zhudy.uia.BizCodes
 import io.zhudy.uia.dto.PasswordAuthInfo
 import io.zhudy.uia.service.OAuth2Service
+import io.zhudy.uia.web.RequestParamException
+import io.zhudy.uia.web.requiredQueryParam
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
+import org.springframework.web.reactive.function.BodyExtractors
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
-import org.springframework.web.reactive.function.server.body
 import reactor.core.publisher.Mono
 
 /**
@@ -30,17 +30,25 @@ class OAuth2Resource(
     }
 
     fun token(req: ServerRequest): Mono<ServerResponse> {
-        val grantType = req.queryParam("grant_type").orElseThrow { BizCodeException(BizCodes.C_0) }
-        if (grantType == "password") {
-            oauth2Service.authorizePassword(PasswordAuthInfo(
-                    clientId = req.queryParam("client_id").get(),
-                    clientSecret = req.queryParam("client_secret").get(),
-                    username = req.queryParam("username").get(),
-                    password = req.queryParam("password").get(),
-                    scope = req.queryParam("scope").get()
-            ))
+        req.body(BodyExtractors.toFormData()).subscribe {
+            val grantType = it.getFirst("grant_type")
+            if (grantType == "password") {
+                val clientId = it.getFirst("client_id")
+                val clientSecret = it.getFirst("client_secret")
+                val username = it.getFirst("username")
+                val password = it.getFirst("password")
+                val scope = it.getFirst("scope")
+
+                oauth2Service.authorizePassword(PasswordAuthInfo(
+                        clientId = clientId,
+                        clientSecret = clientSecret,
+                        username = username,
+                        password = password,
+                        scope = scope
+                ))
+            }
         }
-        return Mono.empty()
+        return ServerResponse.badRequest().syncBody("HELLOWORLD")
     }
 
 }

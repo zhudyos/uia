@@ -71,14 +71,7 @@ allprojects {
         // compile "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
         compile "org.springframework.data:spring-data-redis:2.0.0.M3"
         compile "io.lettuce:lettuce-core:5.0.0.M2"
-
         compile "org.mongodb:mongodb-driver-reactivestreams:1.4.0"
-        compile "org.springframework.data:spring-data-redis:2.0.0.M3"
-        compile "redis.clients:jedis:2.9.0"
-        compile "io.lettuce:lettuce-core:5.0.0.M2"
-
-        // compile "com.datastax.cassandra:cassandra-driver-mapping:3.2.0"
-        // compile "org.mongodb:mongodb-driver-async:3.4.2"
 
         testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     }

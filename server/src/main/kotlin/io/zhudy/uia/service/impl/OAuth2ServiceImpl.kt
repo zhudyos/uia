@@ -22,8 +22,7 @@ class OAuth2ServiceImpl(
     }
 
     override fun authorizePassword(pai: PasswordAuthInfo) = Mono.create<String> { sink ->
-        clientRepository.findByClient(pai.clientId)
-                .and(userRepository.findByEmail(pai.username)).doOnError {
+        clientRepository.findByClient(pai.clientId).and(userRepository.findByEmail(pai.username)).doOnError {
             // FIXME 待修改
             throw it
         }.subscribe {

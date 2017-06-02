@@ -33,12 +33,6 @@ class Application {
     // =========================================================== //
     // Redis 配置                                                  //
     // =========================================================== //
-//    @Bean
-//    fun jedisConnFactory() = JedisConnectionFactory(JedisShardInfo(UiaProperties.redis.host,
-//            UiaProperties.redis.port))
-//    @Bean
-//    fun strRedisTemplate(jedisConnFactory: JedisConnectionFactory) = StringRedisTemplate(jedisConnFactory)
-
     @Bean
     fun tokenGenerator() = SimpleTokenGenerator()
 

@@ -17,7 +17,7 @@ class Routers(
     fun router() = router {
         path("/api/v1/oauth").nest {
             GET("/authorize", oauth2Resource::authorize)
-            GET("/token", oauth2Resource::token)
+            POST("/token", oauth2Resource::token)
         }
     }
 }
