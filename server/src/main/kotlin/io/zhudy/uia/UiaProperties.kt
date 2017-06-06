@@ -9,7 +9,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 object UiaProperties {
 
     var redis = Redis
-    var loginFormUri: String = ""
+    var loginFormUri = ""
+    var token = Token
+
+    /**
+     *
+     */
+    object Token {
+        var accessTokenSalt = ""
+        var refreshTokenSalt = ""
+        var minLength = 32
+    }
 
     /**
      *

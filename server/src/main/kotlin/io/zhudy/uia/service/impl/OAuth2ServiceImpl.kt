@@ -28,7 +28,7 @@ class OAuth2ServiceImpl(
         }.subscribe {
             // 校验客户端
             if (it.t1.clientSecret != pai.clientSecret) {
-                sink.error(OAuth2Exception(OAuth2Exception.UNAUTHORIZED_CLIENT))
+                // sink.error(OAuth2Exception(OAuth2Exception.UNAUTHORIZED_CLIENT))
                 return@subscribe
             }
 

@@ -72,6 +72,7 @@ allprojects {
         compile "org.springframework.data:spring-data-redis:2.0.0.M3"
         compile "io.lettuce:lettuce-core:5.0.0.M2"
         compile "org.mongodb:mongodb-driver-reactivestreams:1.4.0"
+        compile "org.hashids:hashids:1.0.2"
 
         testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     }
