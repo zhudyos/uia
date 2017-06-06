@@ -19,5 +19,5 @@ class Routers(
             GET("/authorize", oauth2Resource::authorize)
             POST("/token", oauth2Resource::token)
         }
-    }
+    }.filter(ExceptionHandlerFilterFunction)!!
 }

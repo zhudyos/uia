@@ -2,8 +2,6 @@ package io.zhudy.uia.web.v1
 
 import io.zhudy.uia.dto.PasswordAuthInfo
 import io.zhudy.uia.service.OAuth2Service
-import io.zhudy.uia.web.RequestParamException
-import io.zhudy.uia.web.requiredQueryParam
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -30,10 +28,10 @@ class OAuth2Resource(
     }
 
     fun token(req: ServerRequest): Mono<ServerResponse> {
-        req.body(BodyExtractors.toFormData()).subscribe {
+        return req.body(BodyExtractors.toFormData()).map {
             val grantType = it.getFirst("grant_type")
             if (grantType == "password") {
-                val clientId = it.getFirst("client_id")
+                val clientId = it.getFirst("client_id") ?: throw IllegalArgumentException("client_id 参数错误")
                 val clientSecret = it.getFirst("client_secret")
                 val username = it.getFirst("username")
                 val password = it.getFirst("password")
@@ -47,8 +45,9 @@ class OAuth2Resource(
                         scope = scope
                 ))
             }
+        }.flatMap {
+            ServerResponse.badRequest().syncBody("GGGGGGGGGGGGG")
         }
-        return ServerResponse.badRequest().syncBody("HELLOWORLD")
     }
 
 }

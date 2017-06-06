@@ -2,6 +2,7 @@ package io.zhudy.uia
 
 /**
  * 业务错误码定义枚举.
+ *
  * @author Kevin Zou <kevinz@weghst.com>
  */
 enum class BizCodes(val code: Int, val msg: String) {
@@ -13,6 +14,10 @@ enum class BizCodes(val code: Int, val msg: String) {
      * 未知错误.
      */
     C_0(0, "未知错误"),
+    /**
+     * HTTP Request 参数错误.
+     */
+    C_999(999, "HTTP Request 参数错误"),
 
     // ====================================================== //
     // client 错误码 1000 - 1999                               //
