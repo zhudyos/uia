@@ -27,27 +27,25 @@ class OAuth2Resource(
         return ServerResponse.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "http://www.baidu.com").build()
     }
 
-    fun token(req: ServerRequest): Mono<ServerResponse> {
-        return req.body(BodyExtractors.toFormData()).map {
-            val grantType = it.getFirst("grant_type")
-            if (grantType == "password") {
-                val clientId = it.getFirst("client_id") ?: throw IllegalArgumentException("client_id 参数错误")
-                val clientSecret = it.getFirst("client_secret")
-                val username = it.getFirst("username")
-                val password = it.getFirst("password")
-                val scope = it.getFirst("scope")
+    fun token(req: ServerRequest) = req.body(BodyExtractors.toFormData()).map {
+        val grantType = it.getFirst("grant_type")
+        if (grantType == "password") {
+            val clientId = it.getFirst("client_id") ?: throw IllegalArgumentException("client_id 参数错误")
+            val clientSecret = it.getFirst("client_secret")
+            val username = it.getFirst("username")
+            val password = it.getFirst("password")
+            val scope = it.getFirst("scope")
 
-                oauth2Service.authorizePassword(PasswordAuthInfo(
-                        clientId = clientId,
-                        clientSecret = clientSecret,
-                        username = username,
-                        password = password,
-                        scope = scope
-                ))
-            }
-        }.flatMap {
-            ServerResponse.badRequest().syncBody("GGGGGGGGGGGGG")
+            oauth2Service.authorizePassword(PasswordAuthInfo(
+                    clientId = clientId,
+                    clientSecret = clientSecret,
+                    username = username,
+                    password = password,
+                    scope = scope
+            ))
         }
+    }.flatMap {
+        ServerResponse.badRequest().syncBody("GGGGGGGGGGGGG")
     }
 
 }

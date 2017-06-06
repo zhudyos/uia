@@ -3,7 +3,7 @@ package io.zhudy.uia.service.impl
 import io.zhudy.uia.dto.PasswordAuthInfo
 import io.zhudy.uia.repository.ClientRepository
 import io.zhudy.uia.repository.UserRepository
-import io.zhudy.uia.service.OAuth2Exception
+import io.zhudy.uia.web.OAuth2Exception
 import io.zhudy.uia.service.OAuth2Service
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
