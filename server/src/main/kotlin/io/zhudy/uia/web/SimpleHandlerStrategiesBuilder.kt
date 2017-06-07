@@ -4,9 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.http.codec.*
 import org.springframework.http.codec.json.Jackson2JsonDecoder
 import org.springframework.http.codec.json.Jackson2JsonEncoder
-import org.springframework.http.codec.multipart.MultipartHttpMessageReader
-import org.springframework.http.codec.multipart.MultipartHttpMessageWriter
-import org.springframework.http.codec.multipart.SynchronossPartHttpMessageReader
 import org.springframework.web.reactive.function.server.HandlerStrategies
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.result.view.ViewResolver
@@ -33,10 +30,10 @@ class SimpleHandlerStrategiesBuilder(objectMapper: ObjectMapper) : HandlerStrate
         codecConfigurer.customCodecs().decoder(Jackson2JsonDecoder(objectMapper))
 
         // 文件上传
-        val partReader = SynchronossPartHttpMessageReader()
-        codecConfigurer.customCodecs().reader(partReader)
-        codecConfigurer.customCodecs().reader(MultipartHttpMessageReader(partReader))
-        codecConfigurer.customCodecs().writer(MultipartHttpMessageWriter())
+        // val partReader = SynchronossPartHttpMessageReader()
+        // codecConfigurer.customCodecs().reader(partReader)
+        // codecConfigurer.customCodecs().reader(MultipartHttpMessageReader(partReader))
+        // codecConfigurer.customCodecs().writer(MultipartHttpMessageWriter())
     }
 
     override fun viewResolver(viewResolver: ViewResolver): HandlerStrategies.Builder {
@@ -60,10 +57,10 @@ class SimpleHandlerStrategiesBuilder(objectMapper: ObjectMapper) : HandlerStrate
     }
 
     override fun build(): HandlerStrategies {
-        return MyHandlerStrategies(codecConfigurer.readers, codecConfigurer.writers, viewResolvers, localeResolver)
+        return SimpleHandlerStrategies(codecConfigurer.readers, codecConfigurer.writers, viewResolvers, localeResolver)
     }
 
-    class MyHandlerStrategies(
+    class SimpleHandlerStrategies(
             val messageReaders: List<HttpMessageReader<*>>,
             val messageWriters: List<HttpMessageWriter<*>>,
             val viewResolvers: List<ViewResolver>,
