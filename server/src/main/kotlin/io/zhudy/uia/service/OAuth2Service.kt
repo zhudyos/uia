@@ -10,6 +10,11 @@ import reactor.core.publisher.Mono
 interface OAuth2Service {
 
     /**
+     * 创建用户 Token.
+     */
+    fun newOAuthToken(uid: Long): Mono<OAuthToken>
+
+    /**
      * 简化模式 (implicit grant type).
      */
     fun authorizeImplicit()

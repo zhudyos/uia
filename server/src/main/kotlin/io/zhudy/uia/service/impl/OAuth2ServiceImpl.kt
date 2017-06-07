@@ -11,6 +11,7 @@ import io.zhudy.uia.service.OAuth2Service
 import org.hashids.Hashids
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.core.publisher.toMono
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
@@ -23,6 +24,12 @@ class OAuth2ServiceImpl(
 
     val accessTokenGen = Hashids(UiaProperties.token.accessTokenSalt, UiaProperties.token.minLength)
     val refreshTokenGen = Hashids(UiaProperties.token.refreshTokenSalt, UiaProperties.token.minLength)
+
+    override fun newOAuthToken(uid: Long): Mono<OAuthToken> {
+        val token = OAuthToken(accessToken = accessTokenGen.encode(uid, System.currentTimeMillis()),
+                refreshToken = refreshTokenGen.encode(uid, System.currentTimeMillis()))
+        return token.toMono()
+    }
 
     override fun authorizeImplicit() {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -38,11 +45,8 @@ class OAuth2ServiceImpl(
                 throw BizCodeException(BizCodes.C_2011)
             }
 
-            val token = OAuthToken(accessToken = accessTokenGen.encode(user.id, System.currentTimeMillis()),
-                    refreshToken = refreshTokenGen.encode(user.id, System.currentTimeMillis()))
-
             // 返回 Token
-            Mono.just(token)
+            newOAuthToken(user.id)
         }
     }
 
