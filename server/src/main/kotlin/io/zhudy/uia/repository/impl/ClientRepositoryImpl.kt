@@ -21,7 +21,7 @@ class ClientRepositoryImpl(
 
     override fun findByClient(clientId: String): Mono<Client> {
         val r = coll.find(eq("client_id", clientId)).first()
-        return Mono.from(r).map({
+        return Mono.from(r).map {
             if (it == null) {
                 throw BizCodeException(BizCodes.C_2000)
             }
@@ -32,7 +32,7 @@ class ClientRepositoryImpl(
                     redirectUri = it["redirect_uri"] as String,
                     scope = it["scope"] as String
             )
-        })
+        }
     }
 
 }

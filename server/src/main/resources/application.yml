@@ -1,4 +1,7 @@
 spring:
+  jackson:
+    default-property-inclusion: non_default
+    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
   data:
     mongodb:
       host: 192.168.31.249

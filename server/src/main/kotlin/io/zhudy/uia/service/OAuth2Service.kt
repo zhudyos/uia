@@ -1,5 +1,6 @@
 package io.zhudy.uia.service
 
+import io.zhudy.uia.dto.OAuthToken
 import io.zhudy.uia.dto.PasswordAuthInfo
 import reactor.core.publisher.Mono
 
@@ -16,5 +17,5 @@ interface OAuth2Service {
     /**
      * 密码模式 (Resource Owner Password Credentials Grant).
      */
-    fun authorizePassword(pai: PasswordAuthInfo): Mono<String>
+    fun authorizePassword(pai: PasswordAuthInfo): Mono<OAuthToken>
 }

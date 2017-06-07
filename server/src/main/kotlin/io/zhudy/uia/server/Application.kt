@@ -1,7 +1,9 @@
 package io.zhudy.uia.server
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.zhudy.uia.UiaProperties
 import io.zhudy.uia.token.SimpleTokenGenerator
+import io.zhudy.uia.web.SimpleHandlerStrategiesBuilder
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
@@ -46,6 +48,9 @@ class Application {
                 .hashKey(serializer).hashValue(serializer).build()
         ReactiveRedisTemplate<String, String>(recf, sc)
     }
+
+    @Bean
+    fun simpleHandlerStrategiesBuilder(objectMapper: ObjectMapper) = SimpleHandlerStrategiesBuilder(objectMapper)
 }
 
 fun main(args: Array<String>) {

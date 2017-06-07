@@ -21,6 +21,4 @@ class OAuth2Exception : RuntimeException {
         this.description = description
         this.state = state
     }
-
-    override fun fillInStackTrace() = this
 }

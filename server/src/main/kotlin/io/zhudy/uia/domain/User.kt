@@ -5,7 +5,7 @@ package io.zhudy.uia.domain
  */
 data class User(
         val id: Long,
-        val email: String?,
-        val password: String?,
+        val email: String = "",
+        val password: String = "",
         val createdTime: Long
 )

@@ -17,7 +17,7 @@ class UserRepositoryImpl(
         mongoClient: MongoClient
 ) : UserRepository {
 
-    val coll = mongoClient.getDatabase("uia").getCollection("client")!!
+    val coll = mongoClient.getDatabase("uia").getCollection("user")!!
 
     override fun findByEmail(email: String): Mono<User> {
         val r = coll.find(eq("email", email)).first()
@@ -27,8 +27,8 @@ class UserRepositoryImpl(
             }
             User(
                     id = it["_id"] as Long,
-                    email = it["email"] as String?,
-                    password = it["password"] as String?,
+                    email = it["email"] as String,
+                    password = it["password"] as String,
                     createdTime = it["created_time"] as Long
             )
         }

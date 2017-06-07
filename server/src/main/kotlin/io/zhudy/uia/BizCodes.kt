@@ -26,6 +26,7 @@ enum class BizCodes(val code: Int, val msg: String) {
      * 未发现指定 client_id 客户端记录.
      */
     C_1000(1000, "未发现指定 client_id 客户端记录"),
+    C_1001(1001, "client_secret 不匹配"),
 
     // ====================================================== //
     // user 错误码 2000 - 2999                                //
@@ -35,6 +36,7 @@ enum class BizCodes(val code: Int, val msg: String) {
      * 未发现指定 email 的用户.
      */
     C_2000(2000, "未发现指定 email 的用户"),
+    C_2011(2011, "user password 不匹配"),
 
     //
     ;
