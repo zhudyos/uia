@@ -1,10 +1,12 @@
 package io.zhudy.uia
 
 import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.stereotype.Component
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
+@Component
 @ConfigurationProperties(prefix = "uia")
 object UiaProperties {
 

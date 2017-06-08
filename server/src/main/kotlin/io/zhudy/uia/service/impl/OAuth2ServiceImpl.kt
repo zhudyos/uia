@@ -50,24 +50,6 @@ class OAuth2ServiceImpl(
         }
     }
 
-//    override fun authorizePassword(pai: PasswordAuthInfo) = Mono.create<String> { sink ->
-//        clientRepository.findByClient(pai.clientId).and(userRepository.findByEmail(pai.username)).doOnError {
-//            // FIXME 待修改
-//            throw it
-//        }.subscribe {
-//            // 校验客户端
-//            if (it.t1.clientSecret != pai.clientSecret) {
-//                // sink.error(OAuth2Exception(OAuth2Exception.UNAUTHORIZED_CLIENT))
-//                return@subscribe
-//            }
-//
-//            // 校验用户密码
-//            if (it.t2.password != pai.password) {
-//                return@subscribe
-//            }
-//        }
-//    }!!
-
     private fun validateClientSecret(clientSecret1: String, clientSecret2: String): Boolean {
         return clientSecret1 == clientSecret2
     }

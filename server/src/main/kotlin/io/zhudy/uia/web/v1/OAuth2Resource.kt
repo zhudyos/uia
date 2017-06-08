@@ -1,16 +1,21 @@
 package io.zhudy.uia.web.v1
 
+import io.zhudy.uia.BizCodeException
+import io.zhudy.uia.BizCodes
+import io.zhudy.uia.dto.OAuthToken
 import io.zhudy.uia.dto.PasswordAuthInfo
 import io.zhudy.uia.service.OAuth2Service
 import io.zhudy.uia.web.OAuth2Exception
+import io.zhudy.uia.web.form
+import io.zhudy.uia.web.json
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
-import org.springframework.web.reactive.function.BodyExtractors
-import org.springframework.web.reactive.function.BodyInserters
+import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
+import reactor.core.publisher.onErrorMap
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
@@ -41,27 +46,40 @@ class OAuth2Resource(
         return ServerResponse.status(HttpStatus.FOUND).header(HttpHeaders.LOCATION, "http://www.baidu.com").build()
     }
 
-    fun token(req: ServerRequest) = req.body(BodyExtractors.toFormData()).map {
+    fun token(req: ServerRequest) = req.form {
         val grantType = it.getFirst("grant_type")
-        if (grantType == "password") {
-            val clientId = it.getFirst("client_id") ?: throw OAuth2Exception("invalid_request", 400, "client_id 不存在")
-            val clientSecret = it.getFirst("client_secret") ?: throw OAuth2Exception("invalid_request", 400, "client_secret 不存在")
-            val username = it.getFirst("username") ?: throw OAuth2Exception("invalid_request", 400, "username 不存在")
-            val password = it.getFirst("password") ?: throw OAuth2Exception("invalid_request", 400, "client_id 不存在")
-            val scope = it.getFirst("scope")
-
-            oauth2Service.authorizePassword(PasswordAuthInfo(
-                    clientId = clientId,
-                    clientSecret = clientSecret,
-                    username = username,
-                    password = password,
-                    scope = scope
-            ))
-        } else {
-            throw OAuth2Exception(error = "invalid_grant", description = "grant_type")
+        when (grantType) {
+            "password" -> {
+                handlePassword(it)
+            }
+            else -> {
+                throw OAuth2Exception(error = "invalid_grant", description = "grant_type")
+            }
         }
     }.flatMap {
-        ServerResponse.ok().body(BodyInserters.fromObject(it))
-    }
+        val bodyBuilder = ServerResponse.ok().header("Cache-Control", "no-store").header("Pragma", "no-cache")
+        bodyBuilder.json(it)
+    }.onErrorMap(BizCodeException::class, {
+        when (it.bizCode) {
+            BizCodes.C_1000, BizCodes.C_1001 -> OAuth2Exception(error = "invalid_client", status = 401, description = it.bizCode.msg)
+            BizCodes.C_2000, BizCodes.C_2011 -> OAuth2Exception(error = "invalid_grant", status = 401, description = it.bizCode.msg)
+            else -> it
+        }
+    })
 
+    fun handlePassword(formData: MultiValueMap<String, String>): Mono<OAuthToken> {
+        val clientId = formData.getFirst("client_id") ?: throw OAuth2Exception("invalid_request", 400, "client_id 不存在")
+        val clientSecret = formData.getFirst("client_secret") ?: throw OAuth2Exception("invalid_request", 400, "client_secret 不存在")
+        val username = formData.getFirst("username") ?: throw OAuth2Exception("invalid_request", 400, "username 不存在")
+        val password = formData.getFirst("password") ?: throw OAuth2Exception("invalid_request", 400, "client_id 不存在")
+        val scope = formData.getFirst("scope")
+
+        return oauth2Service.authorizePassword(PasswordAuthInfo(
+                clientId = clientId,
+                clientSecret = clientSecret,
+                username = username,
+                password = password,
+                scope = scope
+        ))
+    }
 }

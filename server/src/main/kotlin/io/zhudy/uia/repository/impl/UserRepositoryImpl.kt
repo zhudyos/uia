@@ -21,15 +21,16 @@ class UserRepositoryImpl(
 
     override fun findByEmail(email: String): Mono<User> {
         val r = coll.find(eq("email", email)).first()
-        return Mono.from(r).map {
+        return Mono.from(r).doOnSuccess {
             if (it == null) {
-                throw BizCodeException(BizCodes.C_1000)
+                throw BizCodeException(BizCodes.C_2000)
             }
+        }.map {
             User(
-                    id = it["_id"] as Long,
-                    email = it["email"] as String,
-                    password = it["password"] as String,
-                    createdTime = it["created_time"] as Long
+                    id = it.getLong("_id"),
+                    email = it.getString("email") ?: "",
+                    password = it.getString("password") ?: "",
+                    createdTime = it.getLong("created_time")
             )
         }
     }

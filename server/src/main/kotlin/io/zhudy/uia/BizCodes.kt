@@ -36,7 +36,7 @@ enum class BizCodes(val code: Int, val msg: String) {
      * 未发现指定 email 的用户.
      */
     C_2000(2000, "未发现指定 email 的用户"),
-    C_2011(2011, "user password 不匹配"),
+    C_2011(2011, "password 不匹配"),
 
     //
     ;

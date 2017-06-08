@@ -3,11 +3,13 @@ package io.zhudy.uia.web
 import io.zhudy.uia.web.v1.OAuth2Resource
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.DependsOn
 import org.springframework.web.reactive.function.server.router
 
 /**
  * @author Kevin Zou <kevinz@weghst.com>
  */
+@DependsOn("uiaProperties")
 @Configuration
 class Routers(
         val oauth2Resource: OAuth2Resource

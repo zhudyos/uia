@@ -21,16 +21,16 @@ class ClientRepositoryImpl(
 
     override fun findByClient(clientId: String): Mono<Client> {
         val r = coll.find(eq("client_id", clientId)).first()
-        return Mono.from(r).map {
+        return Mono.from(r).doOnSuccess {
             if (it == null) {
-                throw BizCodeException(BizCodes.C_2000)
+                throw BizCodeException(BizCodes.C_1000)
             }
-
+        }.map {
             Client(
-                    clientId = it["client_id"] as String,
-                    clientSecret = it["client_secret"] as String,
-                    redirectUri = it["redirect_uri"] as String,
-                    scope = it["scope"] as String
+                    clientId = it.getString("client_id") ?: "",
+                    clientSecret = it.getString("client_secret") ?: "",
+                    redirectUri = it.getString("redirect_uri") ?: "",
+                    scope = it.getString("scope") ?: ""
             )
         }
     }

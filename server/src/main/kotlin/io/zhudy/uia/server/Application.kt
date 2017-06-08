@@ -2,7 +2,6 @@ package io.zhudy.uia.server
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.zhudy.uia.UiaProperties
-import io.zhudy.uia.token.SimpleTokenGenerator
 import io.zhudy.uia.web.SimpleHandlerStrategiesBuilder
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
@@ -35,9 +34,6 @@ class Application {
     // =========================================================== //
     // Redis 配置                                                  //
     // =========================================================== //
-    @Bean
-    fun tokenGenerator() = SimpleTokenGenerator()
-
     @Bean
     fun redisConnFactory() = LettuceConnectionFactory()
 
