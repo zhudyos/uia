@@ -22,9 +22,7 @@ class UserRepositoryImpl(
     override fun findByEmail(email: String): Mono<User> {
         val r = coll.find(eq("email", email)).first()
         return Mono.from(r).doOnSuccess {
-            if (it == null) {
-                throw BizCodeException(BizCodes.C_2000)
-            }
+            it ?: throw BizCodeException(BizCodes.C_2000)
         }.map {
             User(
                     id = it.getLong("_id"),

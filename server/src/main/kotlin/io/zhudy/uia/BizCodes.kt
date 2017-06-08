@@ -5,7 +5,7 @@ package io.zhudy.uia
  *
  * @author Kevin Zou <kevinz@weghst.com>
  */
-enum class BizCodes(val code: Int, val msg: String) {
+enum class BizCodes(override val code: Int, override val msg: String): BizCode {
 
     // ====================================================== //
     // 公共错误码 0 - 999                                      //

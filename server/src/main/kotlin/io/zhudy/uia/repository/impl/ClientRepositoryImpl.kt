@@ -22,9 +22,7 @@ class ClientRepositoryImpl(
     override fun findByClient(clientId: String): Mono<Client> {
         val r = coll.find(eq("client_id", clientId)).first()
         return Mono.from(r).doOnSuccess {
-            if (it == null) {
-                throw BizCodeException(BizCodes.C_1000)
-            }
+            it ?: throw BizCodeException(BizCodes.C_1000)
         }.map {
             Client(
                     clientId = it.getString("client_id") ?: "",

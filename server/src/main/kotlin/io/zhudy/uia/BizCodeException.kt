@@ -5,19 +5,19 @@ package io.zhudy.uia
  */
 class BizCodeException : RuntimeException {
 
-    val bizCode: BizCodes
+    val bizCode: BizCode
 
     /**
      *
      */
-    constructor(bizCode: BizCodes) : super(bizCode.toString()) {
+    constructor(bizCode: BizCode) : super(bizCode.toString()) {
         this.bizCode = bizCode
     }
 
     /**
      *
      */
-    constructor(bizCode: BizCodes, e: Exception) : super(bizCode.toString(), e) {
+    constructor(bizCode: BizCode, e: Exception) : super(bizCode.toString(), e) {
         this.bizCode = bizCode
     }
 
