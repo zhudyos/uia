@@ -38,11 +38,12 @@ class Application {
     fun redisConnFactory() = LettuceConnectionFactory()
 
     @Bean
-    fun reactiveRedisTemplate(recf: ReactiveRedisConnectionFactory) = {
+    fun reactiveRedisTemplate(recf: ReactiveRedisConnectionFactory): ReactiveRedisTemplate<String, String> {
         val serializer = StringRedisSerializer()
-        val sc = RedisSerializationContext.newSerializationContext<String, String>().key(serializer).value(serializer)
+        val sc = RedisSerializationContext.newSerializationContext<String, String>()
+                .key(serializer).value(serializer)
                 .hashKey(serializer).hashValue(serializer).build()
-        ReactiveRedisTemplate<String, String>(recf, sc)
+        return ReactiveRedisTemplate<String, String>(recf, sc)
     }
 
     @Bean
@@ -50,5 +51,5 @@ class Application {
 }
 
 fun main(args: Array<String>) {
-     SpringApplication.run(Application::class.java, *args)
+    SpringApplication.run(Application::class.java, *args)
 }

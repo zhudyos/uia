@@ -12,7 +12,7 @@ interface OAuth2Service {
     /**
      * 创建用户 Token.
      */
-    fun newOAuthToken(uid: Long): Mono<OAuthToken>
+    fun newOAuthToken(uid: Long, cid: Long): Mono<OAuthToken>
 
     /**
      * 简化模式 (implicit grant type).

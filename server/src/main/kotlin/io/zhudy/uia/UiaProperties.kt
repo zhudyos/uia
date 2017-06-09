@@ -2,6 +2,7 @@ package io.zhudy.uia
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.stereotype.Component
+import java.time.Duration
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Component
 @ConfigurationProperties(prefix = "uia")
 object UiaProperties {
 
-    var redis = Redis
     var loginFormUri = ""
     var token = Token
 
@@ -19,7 +19,9 @@ object UiaProperties {
      */
     object Token {
         var accessTokenSalt = ""
+        var accessTokenExpiresIn = 6000L
         var refreshTokenSalt = ""
+        var refreshTokenExpiresIn = Duration.ofDays(3).seconds
         var minLength = 32
     }
 
