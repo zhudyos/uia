@@ -8,7 +8,7 @@ package io.zhudy.uia
 enum class BizCodes(override val code: Int, override val msg: String): BizCode {
 
     // ====================================================== //
-    // 公共错误码 0 - 999                                      //
+    // 公共错误码 0 - 999                                     //
     // ====================================================== //
     /**
      * 未知错误.
@@ -20,7 +20,7 @@ enum class BizCodes(override val code: Int, override val msg: String): BizCode {
     C_999(999, "HTTP Request 参数错误"),
 
     // ====================================================== //
-    // client 错误码 1000 - 1999                               //
+    // client 错误码 1000 - 1999                              //
     // ====================================================== //
     /**
      * 未发现指定 client_id 客户端记录.

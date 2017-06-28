@@ -1,11 +1,10 @@
 spring:
-  jackson:
-    default-property-inclusion: non_default
-    property-naming-strategy: CAMEL_CASE_TO_LOWER_CASE_WITH_UNDERSCORES
-  data:
-    mongodb:
-      host: 192.168.31.249
-      port: 10000
+#  data:
+#    mongodb:
+#      host: 192.168.31.249
+#      port: 10000
+
+
 uia:
   token:
     access-token-salt: 847b28a6-89bf-41be-96b8-f0c1a94a3353

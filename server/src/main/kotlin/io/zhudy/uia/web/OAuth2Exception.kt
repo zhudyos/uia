@@ -7,18 +7,18 @@ class OAuth2Exception : RuntimeException {
 
 
     val error: String
-    val status: Int
     val description: String
+    val status: Int
     val state: String
 
     /**
      *
      */
-    constructor(error: String, status: Int = 0, description: String = "", state: String = "")
+    constructor(error: String, description: String = "", status: Int = 400, state: String = "")
             : super("[$error] description:$description, state:$state") {
         this.error = error
-        this.status = status
         this.description = description
+        this.status = status
         this.state = state
     }
 }

@@ -2,7 +2,7 @@ buildscript {
 
     ext {
         kotlinVersion = '1.1.2-4'
-        springBootVersion = '2.0.0.M1'
+        springBootVersion = '2.0.0.M2'
     }
 
     repositories {
@@ -65,15 +65,12 @@ allprojects {
         compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
         compile "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
         compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14"
-        compile "io.projectreactor:reactor-kotlin-extensions:1.0.0.M2"
 
-        compile "org.springframework.boot:spring-boot-starter-webflux:$springBootVersion"
+        compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
         // compile "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
-        compile "org.springframework.data:spring-data-redis:2.0.0.M3"
-        compile "io.lettuce:lettuce-core:5.0.0.M2"
-        compile "org.mongodb:mongodb-driver-reactivestreams:1.4.0"
         compile "org.hashids:hashids:1.0.2"
         compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0.pr3"
+        compile "io.undertow:undertow-core:1.4.17.Final"
 
         testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     }
