@@ -11,25 +11,21 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "uia")
 object UiaProperties {
 
+    var redisUri = ""
     var loginFormUri = ""
-    var token = Token
+    val token = Token
+    val refreshToken = RefreshToken
 
     /**
      *
      */
     object Token {
-        var accessTokenSalt = ""
-        var accessTokenExpiresIn = 6000L
-        var refreshTokenSalt = ""
-        var refreshTokenExpiresIn = Duration.ofDays(3).seconds
-        var minLength = 32
+        var salt = ""
+        var expiresIn = 6000L
     }
 
-    /**
-     *
-     */
-    object Redis {
-        var host = "localhost"
-        var port = 6379
+    object RefreshToken {
+        var salt = ""
+        var expiresIn = Duration.ofDays(3).seconds
     }
 }

@@ -58,6 +58,7 @@ allprojects {
         mavenLocal()
         maven { url "http://maven.aliyun.com/nexus/content/groups/public/" }
         maven { url "https://repo.spring.io/libs-milestone/" }
+        maven { url 'http://repo.spring.io/snapshot' }
         mavenCentral()
     }
 
@@ -67,10 +68,13 @@ allprojects {
         compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.14"
 
         compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
-        // compile "org.springframework.boot:spring-boot-starter-data-redis:$springBootVersion"
         compile "org.hashids:hashids:1.0.2"
+        compile "org.mongodb:mongodb-driver:3.4.2"
         compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0.pr3"
         compile "io.undertow:undertow-core:1.4.17.Final"
+        compile "biz.paluch.redis:lettuce:4.3.2.Final"
+
+        compile "io.projectreactor:reactor-core:3.1.0.BUILD-SNAPSHOT"
 
         testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     }

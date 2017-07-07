@@ -21,16 +21,7 @@ class HttpHandlers(
         val routing = Handlers.routing()
         routing.get("/oauth/authorize", oauth2Resource::authorize)
         routing.post("/oauth/token", oauth2Resource::token)
-        routing.post("/oauth/token2", oauth2Resource::token2)
 
         return Handlers.path().addPrefixPath("/api/v1", ExceptionHttpHandler(routing))
     }
-
-//    @Bean
-//    fun router() = router {
-//        path("/api/v1/oauth").nest {
-//            GET("/authorize", oauth2Resource::authorize)
-//            POST("/token", oauth2Resource::token)
-//        }
-//    }.filter(ExceptionHandlerFilterFunction)!!
 }

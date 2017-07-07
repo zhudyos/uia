@@ -18,13 +18,13 @@ class ExceptionHttpHandler(val next: HttpHandler) : HttpHandler {
             next.handleRequest(exchange)
         } catch (e: MissingKotlinParameterException) {
             exchange.statusCode = 400
-            exchange.sendJson(mapOf("code" to BizCodes.C_999.code, "message" to "缺少参数 [${SNAKE_CASE.translate(e.parameter.name)}]"))
+            exchange.sendJson(mapOf("err_code" to BizCodes.C_999.code, "err_message" to "缺少参数 [${SNAKE_CASE.translate(e.parameter.name)}]"))
         } catch (e: ResponseStatusException) {
             exchange.statusCode = e.status
             if (e.reason != null) exchange.reasonPhrase = e.reason
         } catch (e: RequestParamException) {
             exchange.statusCode = 400
-            exchange.sendJson(mapOf("code" to BizCodes.C_999.code, "message" to e.message))
+            exchange.sendJson(mapOf("err_code" to BizCodes.C_999.code, "err_message" to e.message))
         } catch (e: OAuth2Exception) {
             exchange.statusCode = e.status
             exchange.sendJson(OAuthErrorRS(e.error, e.description, e.state))
