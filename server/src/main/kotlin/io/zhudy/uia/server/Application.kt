@@ -34,9 +34,9 @@ class Application : ApplicationListener<ApplicationEvent> {
     }
 
     @Bean
-    fun undertowWebServer(serverProperties: ServerProperties, router: HttpHandler): UndertowWebServer {
+    fun undertowWebServer(serverProperties: ServerProperties, handler: HttpHandler): UndertowWebServer {
         val address = serverProperties.address?.hostName ?: "0.0.0.0"
-        val builder = Undertow.builder().addHttpListener(serverProperties.port, address, router)
+        val builder = Undertow.builder().addHttpListener(serverProperties.port, address, handler)
         if (serverProperties.undertow.workerThreads != null) {
             builder.setWorkerThreads(serverProperties.undertow.workerThreads)
         }

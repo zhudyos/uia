@@ -18,10 +18,14 @@ class HttpHandlers(
 
     @Bean
     fun router(): HttpHandler {
-        val routing = Handlers.routing()
-        routing.get("/oauth/authorize", oauth2Resource::authorize)
-        routing.post("/oauth/token", oauth2Resource::token)
+        val handler = Handlers.path()
+        handler.addPrefixPath("/oauth", Handlers.routing()
+                .get("/authorize", oauth2Resource::authorize)
+                .post("/token", oauth2Resource::token)
+        )
 
-        return Handlers.path().addPrefixPath("/api/v1", ExceptionHttpHandler(routing))
+        return Handlers.gracefulShutdown(
+                Handlers.path().addPrefixPath("/api/v1", ExceptionHttpHandler(handler))
+        )
     }
 }
