@@ -4,19 +4,19 @@ import com.lambdaworks.redis.RedisClient
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.zhudy.uia.UiaProperties
-import org.slf4j.LoggerFactory
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.autoconfigure.web.ServerProperties
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
+import org.springframework.boot.web.embedded.undertow.UndertowWebServer
 import org.springframework.context.ApplicationEvent
 import org.springframework.context.ApplicationListener
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.event.ContextClosedEvent
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
-import kotlin.reflect.full.declaredMembers
 
 
 /**
@@ -24,11 +24,9 @@ import kotlin.reflect.full.declaredMembers
  */
 @SpringBootApplication
 @EnableAutoConfiguration
-@EnableConfigurationProperties(UiaProperties::class)
+@EnableConfigurationProperties(UiaProperties::class, ServerProperties::class)
 @ComponentScan(basePackages = arrayOf("io.zhudy.uia"))
 class Application : ApplicationListener<ApplicationEvent> {
-
-    val log = LoggerFactory.getLogger(Application::class.java)
 
     @Bean
     fun propertyConfigurer() = PropertySourcesPlaceholderConfigurer().apply {
@@ -36,10 +34,13 @@ class Application : ApplicationListener<ApplicationEvent> {
     }
 
     @Bean
-    fun undertow(router: HttpHandler): Undertow {
-        return Undertow.builder()
-                .addHttpListener(8080, "0.0.0.0", router)
-                .build()!!
+    fun undertowWebServer(serverProperties: ServerProperties, router: HttpHandler): UndertowWebServer {
+        val address = serverProperties.address?.hostName ?: "0.0.0.0"
+        val builder = Undertow.builder().addHttpListener(serverProperties.port, address, router)
+        if (serverProperties.undertow.workerThreads != null) {
+            builder.setWorkerThreads(serverProperties.undertow.workerThreads)
+        }
+        return UndertowWebServer(builder, true)
     }
 
     // =========================================================== //
@@ -50,20 +51,12 @@ class Application : ApplicationListener<ApplicationEvent> {
 
     override fun onApplicationEvent(event: ApplicationEvent) {
         if (event is ApplicationReadyEvent) {
-            val undertow = event.applicationContext.getBean(Undertow::class.java)
-            undertow.start()
-            log.info("Undertow started")
-            log.info("Undertow started on port(s) " + getPorts())
+            val webServer = event.applicationContext.getBean(UndertowWebServer::class.java)
+            webServer.start()
         } else if (event is ContextClosedEvent) {
-            val undertow = event.applicationContext.getBean(Undertow::class.java)
-            undertow.stop()
-            log.info("Undertow stopped")
+            val webServer = event.applicationContext.getBean(UndertowWebServer::class.java)
+            webServer.stop()
         }
-    }
-
-    private fun getPorts(): String {
-        val members = Undertow::class.declaredMembers
-        return "unknown"
     }
 }
 
