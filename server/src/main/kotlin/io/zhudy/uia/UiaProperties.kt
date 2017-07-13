@@ -21,7 +21,7 @@ object UiaProperties {
      */
     object Token {
         var salt = ""
-        var expiresIn = 6000L
+        var expiresIn = Duration.ofHours(2).seconds
     }
 
     object RefreshToken {

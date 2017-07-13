@@ -1,6 +1,6 @@
 package io.zhudy.uia.web
 
-import io.undertow.Handlers
+import io.undertow.Handlers.*
 import io.undertow.server.HttpHandler
 import io.zhudy.uia.web.v1.OAuth2Resource
 import org.springframework.context.annotation.Bean
@@ -18,14 +18,14 @@ class HttpHandlers(
 
     @Bean
     fun router(): HttpHandler {
-        val handler = Handlers.path()
-        handler.addPrefixPath("/oauth", Handlers.routing()
+        val handler = path()
+        handler.addPrefixPath("/oauth", routing()
                 .get("/authorize", oauth2Resource::authorize)
                 .post("/token", oauth2Resource::token)
         )
 
-        return Handlers.gracefulShutdown(
-                Handlers.path().addPrefixPath("/api/v1", ExceptionHttpHandler(handler))
+        return gracefulShutdown(
+                path().addPrefixPath("/api/v1", ExceptionHttpHandler(handler))
         )
     }
 }
