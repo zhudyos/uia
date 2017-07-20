@@ -6,7 +6,7 @@ package io.zhudy.uia.dto
 data class OAuthToken(
         val accessToken: String,
         val refreshToken: String,
-        val expiresIn: Int = 6000
+        val expiresIn: Int = 7000
 )
 
 /**

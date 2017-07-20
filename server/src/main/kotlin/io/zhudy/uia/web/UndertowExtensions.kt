@@ -68,6 +68,6 @@ inline fun FormData.param(name: String) = getFirst(name)?.value
  *
  */
 inline fun HttpServerExchange.sendJson(o: Any) {
-    responseHeaders.put(Headers.CONTENT_TYPE, "application/json")
+    responseHeaders.put(Headers.CONTENT_TYPE, "application/json; charset=UTF-8")
     responseSender.send(ByteBuffer.wrap(objectMapper.writeValueAsBytes(o)))
 }

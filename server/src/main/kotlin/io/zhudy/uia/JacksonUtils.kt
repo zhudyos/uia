@@ -15,7 +15,7 @@ object JacksonUtils {
     val objectMapper = ObjectMapper()
 
     init {
-        objectMapper.propertyNamingStrategy = PropertyNamingStrategy.LOWER_CAMEL_CASE
+        objectMapper.propertyNamingStrategy = PropertyNamingStrategy.SNAKE_CASE
         objectMapper.setSerializationInclusion(JsonInclude.Include.NON_DEFAULT)
         objectMapper.enable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
