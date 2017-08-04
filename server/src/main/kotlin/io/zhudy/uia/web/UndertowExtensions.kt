@@ -40,7 +40,7 @@ inline fun HttpServerExchange.formData() = parserFactory.createParser(this)?.par
 /**
  *
  */
-inline fun HttpServerExchange.jsonData(): Map<String, Any> {
+inline fun HttpServerExchange.jsonBody(): Map<String, Any> {
     val mimeType = requestHeaders[Headers.CONTENT_TYPE].first
     if (mimeType == null || !mimeType.startsWith("application/json")) {
         throw ResponseStatusException(415)
@@ -51,7 +51,7 @@ inline fun HttpServerExchange.jsonData(): Map<String, Any> {
 /**
  *
  */
-inline fun <R : Any> HttpServerExchange.jsonData(clazz: KClass<R>): R {
+inline fun <R : Any> HttpServerExchange.jsonBody(clazz: KClass<R>): R {
     val mimeType = requestHeaders[Headers.CONTENT_TYPE].first
     if (mimeType == null || !mimeType.startsWith("application/json")) {
         throw ResponseStatusException(415)

@@ -14,3 +14,11 @@ uia:
   refresh_token:
     salt: 91445f93-8744-4bfa-96f4-0c944b7686c1
   login_form_uri: http://www.google.com
+  weixin:
+    appids:
+      # weixin pc
+      wx8120ce5a486794d7: 666e078f9804095ec04d72d1ee540714
+      # weixin app
+      wxc3074c6fb652a29a: e49fe2063ae15a08d073f4f96189af93
+      # weixin h5
+      wx27a01ce6c6c3e0e8: 6d8d88703396a68d6dff50caef7c0491

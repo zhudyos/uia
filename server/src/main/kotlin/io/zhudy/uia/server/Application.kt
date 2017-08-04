@@ -1,6 +1,5 @@
 package io.zhudy.uia.server
 
-import com.lambdaworks.redis.RedisClient
 import io.undertow.Undertow
 import io.undertow.server.HttpHandler
 import io.zhudy.uia.UiaProperties
@@ -38,14 +37,9 @@ class Application {
         }
         return UndertowWebServer(builder, true)
     }
-
-    // =========================================================== //
-    // Redis 配置                                                  //
-    // =========================================================== //
-    @Bean
-    fun redisConn(uiaProperties: UiaProperties) = RedisClient.create(uiaProperties.redisUri).connect()
 }
 
 fun main(args: Array<String>) {
     SpringApplication.run(Application::class.java, *args)
 }
+

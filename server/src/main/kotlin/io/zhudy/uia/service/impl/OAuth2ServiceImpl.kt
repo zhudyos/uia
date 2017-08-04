@@ -1,15 +1,17 @@
 package io.zhudy.uia.service.impl
 
-import com.lambdaworks.redis.api.StatefulRedisConnection
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
 import io.zhudy.uia.RedisKeys
 import io.zhudy.uia.UiaProperties
 import io.zhudy.uia.dto.OAuthToken
 import io.zhudy.uia.dto.PasswordAuthInfo
+import io.zhudy.uia.helper.JedisHelper
 import io.zhudy.uia.repository.ClientRepository
 import io.zhudy.uia.repository.UserRepository
 import io.zhudy.uia.service.OAuth2Service
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import org.hashids.Hashids
 import org.springframework.stereotype.Service
 
@@ -20,10 +22,9 @@ import org.springframework.stereotype.Service
 class OAuth2ServiceImpl(
         val clientRepository: ClientRepository,
         val userRepository: UserRepository,
-        val redisConn: StatefulRedisConnection<String, String>
+        val jedisHelper: JedisHelper
 ) : OAuth2Service {
 
-    //    val valueOps = reactiveRedisTemplate.opsForValue()
     val accessTokenGen = Hashids(UiaProperties.token.salt, 32)
     val refreshTokenGen = Hashids(UiaProperties.refreshToken.salt, 32)
 
@@ -33,8 +34,11 @@ class OAuth2ServiceImpl(
                 refreshToken = refreshTokenGen.encode(uid, cid, time))
 
         // 添加 redis 缓存
-        redisConn.async().setex(RedisKeys.token.key(uid), UiaProperties.token.expiresIn, token.accessToken)
-        redisConn.async().setex(RedisKeys.rtoken.key(uid), UiaProperties.refreshToken.expiresIn, token.refreshToken)
+        launch(CommonPool) {
+            val jedis = jedisHelper.getJedis()
+            jedis.setex(RedisKeys.token.key(uid), UiaProperties.token.expiresIn, token.accessToken)
+            jedis.setex(RedisKeys.rtoken.key(uid), UiaProperties.refreshToken.expiresIn, token.refreshToken)
+        }
         return token
     }
 

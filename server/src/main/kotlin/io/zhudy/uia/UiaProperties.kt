@@ -11,21 +11,26 @@ import java.time.Duration
 @ConfigurationProperties(prefix = "uia")
 object UiaProperties {
 
-    var redisUri = ""
-    var loginFormUri = ""
+    lateinit var redisUri: String
+    lateinit var loginFormUri: String
     val token = Token
     val refreshToken = RefreshToken
+    var weixin = Weixin
 
     /**
      *
      */
     object Token {
         var salt = ""
-        var expiresIn = Duration.ofHours(2).seconds
+        var expiresIn = Duration.ofHours(2).seconds.toInt()
     }
 
     object RefreshToken {
         var salt = ""
-        var expiresIn = Duration.ofDays(3).seconds
+        var expiresIn = Duration.ofDays(3).seconds.toInt()
+    }
+
+    object Weixin {
+        var appids: Map<String, String> = HashMap()
     }
 }
