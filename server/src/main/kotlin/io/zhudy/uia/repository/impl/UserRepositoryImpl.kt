@@ -5,7 +5,9 @@ import com.mongodb.client.model.Filters.eq
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
 import io.zhudy.uia.domain.User
+import io.zhudy.uia.helper.MongoSeqHelper
 import io.zhudy.uia.repository.UserRepository
+import org.bson.Document
 import org.springframework.stereotype.Repository
 
 /**
@@ -13,10 +15,26 @@ import org.springframework.stereotype.Repository
  */
 @Repository
 class UserRepositoryImpl(
-        mongoClient: MongoClient
+        val mongoClient: MongoClient,
+        val mongoSeqHelper: MongoSeqHelper
 ) : UserRepository {
 
     val coll = mongoClient.getDatabase("uia").getCollection("user")!!
+
+    fun init() {
+        mongoSeqHelper.createSeq("user_id")
+    }
+
+    override fun save(user: User): Long {
+        val doc = Document()
+        val _id = mongoSeqHelper.nextSeq("user_id")
+        doc.put("_id", _id)
+        doc.put("email", user.email)
+        doc.put("password", user.password)
+        doc.put("created_time", user.createdTime)
+
+        return _id
+    }
 
     override fun findByEmail(email: String): User {
         val r = coll.find(eq("email", email)).first() ?: throw BizCodeException(BizCodes.C_2000)

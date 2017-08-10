@@ -7,6 +7,14 @@ import io.zhudy.uia.domain.User
  */
 interface UserRepository {
 
+    /**
+     *
+     */
+    fun save(user: User): Long
+
+    /**
+     *
+     */
     fun findByEmail(email: String): User
 
 }

@@ -69,6 +69,7 @@ allprojects {
         compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0.pr3"
         compile "io.undertow:undertow-core:1.4.17.Final"
 
+        compile "com.squareup.okhttp3:okhttp:3.8.1"
         compile "redis.clients:jedis:2.9.0"
         compile "javax.json:javax.json-api:1.1"
 

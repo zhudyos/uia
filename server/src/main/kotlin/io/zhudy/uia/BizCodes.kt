@@ -5,7 +5,7 @@ package io.zhudy.uia
  *
  * @author Kevin Zou <kevinz@weghst.com>
  */
-enum class BizCodes(override val code: Int, override val msg: String): BizCode {
+enum class BizCodes(override val code: Int, override val msg: String) : BizCode {
 
     // ====================================================== //
     // 公共错误码 0 - 999                                     //
@@ -38,6 +38,12 @@ enum class BizCodes(override val code: Int, override val msg: String): BizCode {
     C_2000(2000, "未发现指定 email 的用户"),
     C_2011(2011, "password 不匹配"),
 
+    /**
+     * oauth2 错误码.
+     */
+    C_3000(3000, "非法的 redirect_uri"),
+    C_3001(3001, "refresh_token 过期/或不存在"),
+    C_3002(3002, "refresh_token 的 client_id 非法"),
     //
     ;
 

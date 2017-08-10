@@ -20,12 +20,16 @@ object RedisKeys {
      */
     val client_repo = RedisKey("client_repo")
     /**
-     * OAuth2 AccessToken.
+     * oauth2 authorization code.
      */
-    val token = RedisKey("token")
+    val oauth2_code = RedisKey("oauth2:code")
     /**
-     * OAuth2 RefreshToken.
+     * oauth2 access token.
      */
-    val rtoken = RedisKey("rtoken")
+    val oauth2_token = RedisKey("oauth2:token")
+    /**
+     * oauth2 refresh token.
+     */
+    val oauth2_rtoken = RedisKey("oauth2:rtoken")
 
 }
