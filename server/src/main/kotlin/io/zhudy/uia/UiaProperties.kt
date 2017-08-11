@@ -13,6 +13,7 @@ object UiaProperties {
 
     lateinit var redisUri: String
     lateinit var loginFormUri: String
+
     val token = Token
     val refreshToken = RefreshToken
     var weixin = Weixin

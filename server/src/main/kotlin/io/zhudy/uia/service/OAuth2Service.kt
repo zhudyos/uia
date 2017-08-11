@@ -10,6 +10,11 @@ interface OAuth2Service {
     /**
      *
      */
+    fun authorizeCode(info: CodeAuthorizeInfo): String
+
+    /**
+     *
+     */
     fun decodeToken(token: String): TokenInfo
 
     /**
@@ -25,15 +30,15 @@ interface OAuth2Service {
     /**
      * 授权码模式(authorization code).
      */
-    fun authorizeCode(info: AuthorizationCodeAuthInfo): OAuthToken
+    fun grantCode(info: AuthorizationCodeGrantInfo): OAuthToken
 
     /**
      * 密码模式 (Resource Owner Password Credentials Grant).
      */
-    fun authorizePassword(info: PasswordAuthInfo): OAuthToken
+    fun grantPassword(info: PasswordGrantInfo): OAuthToken
 
     /**
      * 刷新令牌(refresh token).
      */
-    fun refreshToken(info: RefreshTokenAuthInfo): OAuthToken
+    fun grantRefreshToken(info: RefreshTokenGrantInfo): OAuthToken
 }

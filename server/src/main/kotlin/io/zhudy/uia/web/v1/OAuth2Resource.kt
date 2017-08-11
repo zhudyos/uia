@@ -3,12 +3,10 @@ package io.zhudy.uia.web.v1
 import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormData
 import io.undertow.util.Headers
+import io.undertow.util.StatusCodes
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
-import io.zhudy.uia.dto.AuthorizationCodeAuthInfo
-import io.zhudy.uia.dto.OAuthToken
-import io.zhudy.uia.dto.PasswordAuthInfo
-import io.zhudy.uia.dto.RefreshTokenAuthInfo
+import io.zhudy.uia.dto.*
 import io.zhudy.uia.service.OAuth2Service
 import io.zhudy.uia.web.OAuth2Exception
 import io.zhudy.uia.web.formData
@@ -25,7 +23,32 @@ class OAuth2Resource(
 ) {
 
     fun authorize(exchange: HttpServerExchange) {
-        exchange.sendJson(mapOf("a" to "a", "b" to "b"))
+        val formData = exchange.formData()
+        val responseType = formData.param("response_type") ?: ""
+        val state = formData.param("state") ?: ""
+
+        val clientId = formData.param("client_id") ?: throw OAuth2Exception(error = "invalid_client")
+        val redirectUri = formData.param("redirect_uri") ?: ""
+        val scope = formData.param("scope") ?: ""
+
+        when (responseType) {
+            "code" -> {
+                // FIXME 完善
+
+                val code = oauth2Service.authorizeCode(CodeAuthorizeInfo(
+                        clientId = clientId,
+                        redirectUri = redirectUri,
+                        scope = scope
+                ))
+
+                exchange.statusCode = StatusCodes.FOUND
+                exchange.responseHeaders.put(Headers.LOCATION, "$redirectUri?code=$code&state=$state")
+                exchange.endExchange()
+            }
+            else -> {
+                throw OAuth2Exception(error = "unsupported_response_type")
+            }
+        }
     }
 
     fun token(exchange: HttpServerExchange) {
@@ -67,7 +90,7 @@ class OAuth2Resource(
         val code = formData.param("code") ?: throw OAuth2Exception("code", "code 不存在")
         val scope = formData.param("scope") ?: ""
 
-        return oauth2Service.authorizeCode(AuthorizationCodeAuthInfo(
+        return oauth2Service.grantCode(AuthorizationCodeGrantInfo(
                 clientId = c.first,
                 clientSecret = c.second,
                 redirectUri = redirectUri,
@@ -83,7 +106,7 @@ class OAuth2Resource(
         val password = formData.param("password") ?: throw OAuth2Exception("invalid_request", "client_id 不存在")
         val scope = formData.param("scope") ?: ""
 
-        return oauth2Service.authorizePassword(PasswordAuthInfo(
+        return oauth2Service.grantPassword(PasswordGrantInfo(
                 clientId = c.first,
                 clientSecret = c.second,
                 username = username,
@@ -98,7 +121,7 @@ class OAuth2Resource(
         val refreshToken = formData.param("refresh_token") ?: throw OAuth2Exception("invalid_request", "refresh_token 不存在")
         val scope = formData.param("scope") ?: ""
 
-        return oauth2Service.refreshToken(RefreshTokenAuthInfo(
+        return oauth2Service.grantRefreshToken(RefreshTokenGrantInfo(
                 clientId = c.first,
                 clientSecret = c.second,
                 refreshToken = refreshToken,

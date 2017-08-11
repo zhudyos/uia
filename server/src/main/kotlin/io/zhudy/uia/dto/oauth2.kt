@@ -1,6 +1,15 @@
 package io.zhudy.uia.dto
 
 /**
+ *
+ */
+data class CodeAuthorizeInfo(
+        val clientId: String,
+        val redirectUri: String,
+        val scope: String = ""
+)
+
+/**
  * 令牌解码信息.
  *
  * @param uid 用户 ID
@@ -25,7 +34,7 @@ data class OAuthToken(
 /**
  *
  */
-data class AuthorizationCodeAuthInfo(
+data class AuthorizationCodeGrantInfo(
         val clientId: String,
         val clientSecret: String,
         val redirectUri: String,
@@ -36,7 +45,7 @@ data class AuthorizationCodeAuthInfo(
 /**
  *
  */
-data class PasswordAuthInfo(
+data class PasswordGrantInfo(
         val clientId: String,
         val clientSecret: String,
         val username: String,
@@ -44,7 +53,7 @@ data class PasswordAuthInfo(
         val scope: String = ""
 )
 
-data class RefreshTokenAuthInfo(
+data class RefreshTokenGrantInfo(
         val clientId: String,
         val clientSecret: String,
         val refreshToken: String,

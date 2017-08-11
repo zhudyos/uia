@@ -28,6 +28,10 @@ class OAuth2ServiceImpl(
     val accessTokenGen = Hashids(UiaProperties.token.salt, 32)
     val refreshTokenGen = Hashids(UiaProperties.refreshToken.salt, 32)
 
+    override fun authorizeCode(info: CodeAuthorizeInfo): String {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun decodeToken(token: String): TokenInfo {
         return decodeToken0(token, accessTokenGen)
     }
@@ -50,7 +54,7 @@ class OAuth2ServiceImpl(
         return token
     }
 
-    override fun authorizeCode(info: AuthorizationCodeAuthInfo): OAuthToken {
+    override fun grantCode(info: AuthorizationCodeGrantInfo): OAuthToken {
         val codeFields = jedisHelper.getJedis().hgetAll(RedisKeys.oauth2_code.key(info.code))
         if (codeFields["redirect_uri"] != info.redirectUri) {
             throw BizCodeException(BizCodes.C_3000)
@@ -59,7 +63,7 @@ class OAuth2ServiceImpl(
         return newOAuthToken(codeFields["uid"] as Long, client.id)
     }
 
-    override fun authorizePassword(info: PasswordAuthInfo): OAuthToken {
+    override fun grantPassword(info: PasswordGrantInfo): OAuthToken {
         val client = checkClient(info.clientId, info.clientSecret)
 
         val user = userRepository.findByEmail(info.username)
@@ -71,7 +75,7 @@ class OAuth2ServiceImpl(
         return newOAuthToken(user.id, client.id)
     }
 
-    override fun refreshToken(info: RefreshTokenAuthInfo): OAuthToken {
+    override fun grantRefreshToken(info: RefreshTokenGrantInfo): OAuthToken {
         val client = checkClient(info.clientId, info.clientSecret)
         val t = decodeRefreshToken(info.refreshToken)
         if (t.expireTime > System.currentTimeMillis()) { // refresh token 已经过期
