@@ -29,8 +29,6 @@ class WeixinResource(
         val stateJson = JacksonUtils.objectMapper.readValue(state, JsonObject::class.java)
         val appid = stateJson.getString("appid")
 
-
-
         exchange.sendJson(mapOf("a" to "a", "b" to "b"))
     }
 

@@ -3,15 +3,11 @@ package io.zhudy.uia.web.v1
 import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormData
 import io.undertow.util.Headers
-import io.undertow.util.StatusCodes
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
 import io.zhudy.uia.dto.*
 import io.zhudy.uia.service.OAuth2Service
-import io.zhudy.uia.web.OAuth2Exception
-import io.zhudy.uia.web.formData
-import io.zhudy.uia.web.param
-import io.zhudy.uia.web.sendJson
+import io.zhudy.uia.web.*
 import org.springframework.stereotype.Controller
 
 /**
@@ -23,27 +19,26 @@ class OAuth2Resource(
 ) {
 
     fun authorize(exchange: HttpServerExchange) {
-        val formData = exchange.formData()
-        val responseType = formData.param("response_type") ?: ""
-        val state = formData.param("state") ?: ""
+        val responseType = exchange.queryParam("response_type") ?: ""
+        val state = exchange.queryParam("state") ?: ""
 
-        val clientId = formData.param("client_id") ?: throw OAuth2Exception(error = "invalid_client")
-        val redirectUri = formData.param("redirect_uri") ?: ""
-        val scope = formData.param("scope") ?: ""
+        val clientId = exchange.queryParam("client_id") ?: throw OAuth2Exception(error = "invalid_client")
+        val redirectUri = exchange.queryParam("redirect_uri") ?: ""
+        val scope = exchange.queryParam("scope") ?: ""
 
         when (responseType) {
             "code" -> {
                 // FIXME 完善
+                // 手动授权
 
+                // 自动授权
                 val code = oauth2Service.authorizeCode(CodeAuthorizeInfo(
                         clientId = clientId,
                         redirectUri = redirectUri,
                         scope = scope
                 ))
 
-                exchange.statusCode = StatusCodes.FOUND
-                exchange.responseHeaders.put(Headers.LOCATION, "$redirectUri?code=$code&state=$state")
-                exchange.endExchange()
+                exchange.sendRedirect("$redirectUri?code=$code&state=$state")
             }
             else -> {
                 throw OAuth2Exception(error = "unsupported_response_type")

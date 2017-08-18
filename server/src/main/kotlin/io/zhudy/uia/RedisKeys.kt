@@ -31,5 +31,9 @@ object RedisKeys {
      * oauth2 refresh token.
      */
     val oauth2_rtoken = RedisKey("oauth2:rtoken")
+    /**
+     * SSO token.
+     */
+    val sso_token = RedisKey("sso:token")
 
 }

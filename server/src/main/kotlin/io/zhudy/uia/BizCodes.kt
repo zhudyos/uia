@@ -14,6 +14,7 @@ enum class BizCodes(override val code: Int, override val msg: String) : BizCode 
      * 未知错误.
      */
     C_0(0, "未知错误"),
+    C_500(500, "服务器内部错误"),
     /**
      * HTTP Request 参数错误.
      */

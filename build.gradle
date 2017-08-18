@@ -73,7 +73,8 @@ allprojects {
         compile "redis.clients:jedis:2.9.0"
         compile "javax.json:javax.json-api:1.1"
 
-        compile "org.apache.commons:commons-crypto:1.0.0"
+        compile "org.springframework.security:spring-security-crypto:4.2.3.RELEASE"
+        compile "org.pac4j:undertow-pac4j:1.2.3"
 
         testCompile "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     }

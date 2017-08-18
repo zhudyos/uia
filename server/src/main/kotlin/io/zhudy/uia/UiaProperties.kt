@@ -12,11 +12,31 @@ import java.time.Duration
 object UiaProperties {
 
     lateinit var redisUri: String
-    lateinit var loginFormUri: String
+    lateinit var loginHtmlUri: String
 
+    val ssoToken = SsoToken
     val token = Token
     val refreshToken = RefreshToken
     var weixin = Weixin
+
+    /**
+     *
+     */
+    object SsoToken {
+        var salt = ""
+        var length = 32
+        var expiresIn = 2 * 60 * 60
+        val cookie = Cookie
+
+        object Cookie {
+            var name = "sso_token"
+            var domain = ""
+            var maxAge = 0
+            var path = "/"
+            var httpOnly = true
+            var secure = false
+        }
+    }
 
     /**
      *

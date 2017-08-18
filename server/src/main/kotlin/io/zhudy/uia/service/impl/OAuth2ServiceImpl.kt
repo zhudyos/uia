@@ -13,6 +13,7 @@ import io.zhudy.uia.service.OAuth2Service
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import org.hashids.Hashids
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
 /**
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service
 class OAuth2ServiceImpl(
         val clientRepository: ClientRepository,
         val userRepository: UserRepository,
+        val passwordEncoder: PasswordEncoder,
         val jedisHelper: JedisHelper
 ) : OAuth2Service {
 
@@ -67,7 +69,7 @@ class OAuth2ServiceImpl(
         val client = checkClient(info.clientId, info.clientSecret)
 
         val user = userRepository.findByEmail(info.username)
-        if (!validateUserPwd(info.password, user.password)) {
+        if (!passwordEncoder.matches(info.password, user.password)) {
             throw BizCodeException(BizCodes.C_2011)
         }
 
@@ -100,10 +102,6 @@ class OAuth2ServiceImpl(
             throw BizCodeException(BizCodes.C_1001)
         }
         return client
-    }
-
-    private fun validateUserPwd(pwd1: String, pwd2: String): Boolean {
-        return pwd1 == pwd2
     }
 
     private fun decodeToken0(token: String, gen: Hashids): TokenInfo {

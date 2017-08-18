@@ -5,6 +5,7 @@ import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormData
 import io.undertow.server.handlers.form.FormParserFactory
 import io.undertow.util.Headers
+import io.undertow.util.StatusCodes
 import io.zhudy.uia.JacksonUtils
 import java.nio.ByteBuffer
 import java.nio.channels.Channels
@@ -63,6 +64,15 @@ inline fun <R : Any> HttpServerExchange.jsonBody(clazz: KClass<R>): R {
  *
  */
 inline fun FormData.param(name: String) = getFirst(name)?.value
+
+/**
+ *
+ */
+inline fun HttpServerExchange.sendRedirect(location: String) {
+    this.statusCode = StatusCodes.FOUND
+    this.responseHeaders.put(Headers.LOCATION, location)
+    this.endExchange()
+}
 
 /**
  *
