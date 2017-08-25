@@ -15,6 +15,10 @@ interface UserRepository {
     /**
      *
      */
-    fun findByEmail(email: String): User
+    fun findByUid(uid: Long): User
 
+    /**
+     *
+     */
+    fun findByEmail(email: String): User
 }

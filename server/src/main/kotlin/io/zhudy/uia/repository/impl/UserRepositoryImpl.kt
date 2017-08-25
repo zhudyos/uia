@@ -36,6 +36,16 @@ class UserRepositoryImpl(
         return _id
     }
 
+    override fun findByUid(uid: Long): User {
+        val r = coll.find(eq("_id", uid)).first() ?: throw BizCodeException(BizCodes.C_2001)
+        return User(
+                id = r.getLong("_id"),
+                email = r.getString("email") ?: "",
+                password = r.getString("password") ?: "",
+                createdTime = r.getLong("created_time")
+        )
+    }
+
     override fun findByEmail(email: String): User {
         val r = coll.find(eq("email", email)).first() ?: throw BizCodeException(BizCodes.C_2000)
         return User(

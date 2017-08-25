@@ -5,10 +5,13 @@ import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.undertow.Handlers.*
 import io.undertow.server.HttpHandler
 import io.undertow.server.HttpServerExchange
+import io.undertow.server.RoutingHandler
 import io.undertow.server.handlers.ExceptionHandler
 import io.undertow.server.handlers.resource.ClassPathResourceManager
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
+import io.zhudy.uia.helper.JedisHelper
+import io.zhudy.uia.service.OAuth2Service
 import io.zhudy.uia.web.v1.*
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -21,22 +24,31 @@ import kotlin.reflect.KFunction1
 @DependsOn("uiaProperties")
 @Configuration
 class HttpHandlers(
+        val jedisHelper: JedisHelper,
+        val oauth2Service: OAuth2Service,
+        // ====================================
         val loginResource: LoginResource,
         val oauth2Resource: OAuth2Resource,
         val weixinResource: WeixinResource,
-        val ssoAuthentication: SsoAuthentication
+        val ssoAuthentication: SsoAuthentication,
+        val userResource: UserResource
 ) {
 
     val SNAKE_CASE = PropertyNamingStrategy.SNAKE_CASE as PropertyNamingStrategy.PropertyNamingStrategyBase
 
     @Bean
     fun router(): HttpHandler {
-        val a = routing()
-        a.post("/login", loginResource::login)
-        a.get("/weixin/callback", weixinResource::handle)
+        val a = RoutingHandler()
 
-        a.get("/oauth/authorize", security(oauth2Resource::authorize))
+        a.post("/login", loginResource::login)
+        a.get("/weixin/{label}/callback", weixinResource::handle)
+
+        a.get("/oauth/authorize", OAuth2AuthorizeBeforeHandler(oauth2Service, security(oauth2Resource::authorize)))
         a.post("/oauth/token", oauth2Resource::token)
+
+        // oauth 权限认证接口
+        // 获取当前认证用户信息
+        a.get("/user", oSecurity(userResource::loadCurUserInfo))
 
         // =============================================================================================================
         val dh = resource(ClassPathResourceManager(HttpHandlers::class.java.classLoader, "templates"))
@@ -46,6 +58,13 @@ class HttpHandlers(
 
     private fun security(next: KFunction1<HttpServerExchange, Unit>): HttpHandler {
         return SecurityHandler(ssoAuthentication, next)
+    }
+
+    /**
+     * 需要 oauth2 认证.
+     */
+    private fun oSecurity(next: KFunction1<HttpServerExchange, Unit>): HttpHandler {
+        return OAuth2SecurityHandler(jedisHelper, oauth2Service, next)
     }
 
     /**

@@ -26,14 +26,17 @@ class LoginResource(
         val formData = exchange.formData()
         val username = formData.param("username") ?: throw RequestParamException("username")
         val password = formData.param("password") ?: throw RequestParamException("password")
+        val redirectUri = formData.param("redirect_uri") ?: ""
 
-        // 登录模式 login mode
         val user: User
         try {
             user = userService.authenticate(username, password)
         } catch (e: BizCodeException) {
-            val referer = exchange.requestHeaders.getFirst(Headers.REFERER) ?: UiaProperties.loginHtmlUri
-            val location = HttpUrl.parse(referer)!!.newBuilder().addQueryParameter("err_code", "${e.bizCode.code}").toString()
+            var location = "${UiaProperties.loginHtmlUri}?username=$username"
+            if (redirectUri.isNotEmpty()) {
+                location += "&redirect_uri=$redirectUri"
+            }
+            location += "&err_code=${e.bizCode.code}"
             exchange.sendRedirect(location)
             return
         }

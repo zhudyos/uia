@@ -1,6 +1,8 @@
 package io.zhudy.uia.web
 
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider
 import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormData
 import io.undertow.server.handlers.form.FormParserFactory
@@ -80,4 +82,22 @@ inline fun HttpServerExchange.sendRedirect(location: String) {
 inline fun HttpServerExchange.sendJson(o: Any) {
     responseHeaders.put(Headers.CONTENT_TYPE, "application/json; charset=UTF-8")
     responseSender.send(ByteBuffer.wrap(objectMapper.writeValueAsBytes(o)))
+}
+
+/**
+ *
+ */
+inline fun HttpServerExchange.sendJson(fields: String, o: Any) {
+    if (fields.isEmpty()) {
+        sendJson(o)
+        return
+    }
+
+    responseHeaders.put(Headers.CONTENT_TYPE, "application/json; charset=UTF-8")
+
+    val filter = SimpleBeanPropertyFilter.filterOutAllExcept(fields.split(",").toSet())
+    val provider = SimpleFilterProvider()
+    provider.defaultFilter = filter
+
+    responseSender.send(ByteBuffer.wrap(objectMapper.writer(provider).writeValueAsBytes(o)))
 }

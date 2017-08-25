@@ -15,6 +15,7 @@ object UiaProperties {
     lateinit var loginHtmlUri: String
 
     val ssoToken = SsoToken
+    val code = Code
     val token = Token
     val refreshToken = RefreshToken
     var weixin = Weixin
@@ -38,6 +39,10 @@ object UiaProperties {
         }
     }
 
+    object Code {
+        var expiresIn = Duration.ofMinutes(5).seconds.toInt()
+    }
+
     /**
      *
      */
@@ -52,6 +57,6 @@ object UiaProperties {
     }
 
     object Weixin {
-        var appids: Map<String, String> = HashMap()
+        var apps: Map<String, Map<String, String>> = HashMap()
     }
 }

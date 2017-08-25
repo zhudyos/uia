@@ -25,7 +25,7 @@ class ClientRepositoryImpl(
 
     override fun findByClient(clientId: String): Client {
         val ckey = RedisKeys.client_repo.key(clientId)
-        val jedis = jedisHelper.getJedis()
+        val jedis = jedisHelper.jedis
         val cacheClient = jedis[ckey]
 
         if (cacheClient != null && cacheClient.isNotEmpty()) {

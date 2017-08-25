@@ -10,7 +10,12 @@ interface OAuth2Service {
     /**
      *
      */
-    fun authorizeCode(info: CodeAuthorizeInfo): String
+    fun authorizeCheck(info: CodeAuthorizeInfo)
+
+    /**
+     *
+     */
+    fun authorizeCode(info: CodeAuthorizeInfo): Pair<String, String>
 
     /**
      *

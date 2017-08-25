@@ -12,4 +12,9 @@ interface UserService {
      */
     fun authenticate(username: String, password: String): User
 
+    /**
+     *
+     */
+    fun findByUid(uid: Long): User
+
 }

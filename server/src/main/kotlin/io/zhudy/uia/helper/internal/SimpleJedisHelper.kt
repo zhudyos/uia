@@ -9,6 +9,8 @@ import javax.annotation.PostConstruct
 import javax.annotation.PreDestroy
 
 /**
+ * 基本 [JedisHelper] 实现.
+ *
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @ConfigurationProperties("jedis")
@@ -29,7 +31,11 @@ class SimpleJedisHelper : JedisHelper {
         redisClient.close()
     }
 
-    override fun getJedis(): Jedis {
-        return redisClient
-    }
+    /**
+     * 返回 jedis 对象.
+     */
+    override val jedis: Jedis
+        get() {
+            return redisClient
+        }
 }

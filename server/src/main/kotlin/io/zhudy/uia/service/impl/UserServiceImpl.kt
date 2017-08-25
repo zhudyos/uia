@@ -24,4 +24,8 @@ class UserServiceImpl(
         }
         return user
     }
+
+    override fun findByUid(uid: Long): User {
+        return userRepository.findByUid(uid)
+    }
 }
