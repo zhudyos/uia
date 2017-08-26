@@ -1,4 +1,10 @@
 rootProject.name = 'uia'
 include 'server'
+include 'server2'
 include 'manager'
 include 'manager-ui'
+
+// 加载子项目配置
+rootProject.children.each { project ->
+    project.buildFileName = "${project.name}.gradle"
+}

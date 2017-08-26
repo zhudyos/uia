@@ -81,6 +81,10 @@ inline fun HttpServerExchange.sendRedirect(location: String) {
  */
 inline fun HttpServerExchange.sendJson(o: Any) {
     responseHeaders.put(Headers.CONTENT_TYPE, "application/json; charset=UTF-8")
+    if (o is String) {
+        responseSender.send(ByteBuffer.wrap(o.toByteArray()))
+        return
+    }
     responseSender.send(ByteBuffer.wrap(objectMapper.writeValueAsBytes(o)))
 }
 

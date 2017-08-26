@@ -1,0 +1,57 @@
+#%RAML 1.0
+title: Uia API
+version: v1
+baseUri: http://localhost:8080/api/{version}
+
+/login:
+  post:
+    queryParameters:
+      client_id:
+        type: string
+        required: false
+        description: oauth2 登录的 client_id
+      redirect_uri:
+        type: string
+        required: false
+        description: 登录成功重定向 URL
+    body:
+      application/x-www-form-urlencoded:
+        properties:
+          username: string
+          password: string
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "username": "kevinz@weghst.com"
+              }
+      302:
+        headers:
+          Location:
+            example: http://uia/redirect_uri
+      400:
+        body:
+          application/json:
+            examples:
+              username-required: |
+                {
+                  "err_code": 999,
+                  "err_message": "[username] required"
+                }
+              password-required: |
+                {
+                  "err_code": 999,
+                  "err_message": "[password] required"
+                }
+              user-not-found: |
+                {
+                  "err_code": 2000,
+                  "err_message": "未发现指定 email 的用户"
+                }
+              password-not-match: |
+                {
+                  "err_code": 2011,
+                  "err_message": "password 不匹配"
+                }
