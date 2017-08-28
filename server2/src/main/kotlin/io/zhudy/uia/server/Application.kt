@@ -5,9 +5,9 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
+import org.springframework.context.support.GenericApplicationContext
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer
 import org.springframework.security.crypto.password.NoOpPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -39,6 +39,7 @@ class Application {
 }
 
 fun main(args: Array<String>) {
-    SpringApplication.run(Application::class.java, *args)
+    val ctx = SpringApplication.run(Application::class.java, *args)
+    beans().invoke(ctx as GenericApplicationContext)
 }
 

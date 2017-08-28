@@ -11,12 +11,10 @@ project(":server2") {
         compile "org.springframework.security:spring-security-crypto:4.2.3.RELEASE"
         compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.9.0.pr3"
 
-        compile("org.springframework.boot:spring-boot-starter-webflux:$springBootVersion") {
-            exclude module: "spring-boot-starter-reactor-netty"
-        }
+        compile "org.springframework.boot:spring-boot-starter:$springBootVersion"
+        compile "org.springframework:spring-context-support:5.0.0.RC3"
 
-        compile "org.springframework:spring-webflux:5.0.0.RC3"
-        compile "io.undertow:undertow-core:1.4.17.Final"
+        compile "com.sparkjava:spark-core:2.6.0"
         // compile "org.springframework.data:spring-data-mongodb:2.0.0.RC2"
         // compile "org.springframework.data:spring-data-redis:2.0.0.RC2"
 

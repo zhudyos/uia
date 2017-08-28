@@ -1,18 +1,35 @@
 package io.zhudy.uia.web.v1
 
+import io.zhudy.uia.helper.JedisHelper
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.core.io.Resource
 import org.springframework.stereotype.Controller
-import org.springframework.web.reactive.function.server.ServerRequest
-import org.springframework.web.reactive.function.server.ServerResponse
-import reactor.core.publisher.Mono
+import spark.Request
+import spark.Response
+import spark.utils.IOUtils
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @Controller
 class LoginResource(
+        val jedisHelper: JedisHelper
 ) {
 
-    fun login(req: ServerRequest): Mono<ServerResponse> {
-        return Mono.empty()
+    @Value("classpath:/templates/login.html")
+    lateinit var loginHtml: Resource
+
+    /**
+     * login html.
+     */
+    fun loginView(req: Request, resp: Response): Any {
+        return IOUtils.toString(loginHtml.inputStream)
+    }
+
+    /**
+     *
+     */
+    fun login(req: Request, resp: Response): Any {
+        return "success"
     }
 }
