@@ -9,6 +9,7 @@ object UiaProperties {
 
     lateinit var redisUri: String
     lateinit var loginHtmlUri: String
+    lateinit var confirmHtmlUri: String
 
     val ssoToken = SsoToken
     val code = Code
@@ -22,7 +23,7 @@ object UiaProperties {
     object SsoToken {
         var salt = ""
         var length = 32
-        var expiresIn = 2 * 60 * 60
+        var expiresIn = 2 * 60 * 60L
         val cookie = Cookie
 
         object Cookie {
@@ -36,7 +37,7 @@ object UiaProperties {
     }
 
     object Code {
-        var expiresIn = Duration.ofMinutes(5).seconds.toInt()
+        var expiresIn = Duration.ofMinutes(5).seconds
     }
 
     /**
@@ -44,12 +45,12 @@ object UiaProperties {
      */
     object Token {
         var salt = ""
-        var expiresIn = Duration.ofHours(2).seconds.toInt()
+        var expiresIn = Duration.ofHours(2).seconds
     }
 
     object RefreshToken {
         var salt = ""
-        var expiresIn = Duration.ofDays(3).seconds.toInt()
+        var expiresIn = Duration.ofDays(3).seconds
     }
 
     object Weixin {

@@ -8,5 +8,6 @@ data class Client(
         val clientId: String,
         val clientSecret: String,
         val redirectUri: String,
-        val scope: String
+        val scope: String,
+        val confirm: Boolean = true
 )

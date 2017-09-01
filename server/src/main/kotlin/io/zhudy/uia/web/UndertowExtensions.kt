@@ -7,6 +7,7 @@ import io.undertow.server.HttpServerExchange
 import io.undertow.server.handlers.form.FormData
 import io.undertow.server.handlers.form.FormParserFactory
 import io.undertow.util.Headers
+import io.undertow.util.PathTemplateMatch
 import io.undertow.util.StatusCodes
 import io.zhudy.uia.JacksonUtils
 import java.nio.ByteBuffer
@@ -28,7 +29,10 @@ var objectMapper = JacksonUtils.objectMapper
 /**
  *
  */
-inline fun HttpServerExchange.pathParam(name: String) = pathParameters[name]?.first
+inline fun HttpServerExchange.pathParam(name: String): String? {
+    val a = getAttachment(PathTemplateMatch.ATTACHMENT_KEY)
+    return a?.parameters?.get(name)
+}
 
 /**
  *

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>认证授权</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css"
+          integrity="sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M" crossorigin="anonymous">
+    <script>
+        function queryParam(name) {
+            var url = window.location.href;
+            name = name.replace(/[\[\]]/g, "\\$&");
+            var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, " "));
+        }
+
+        function authorize() {
+            var client_id = queryParam("client_id")
+            var redirect_uri = queryParam("redirect_uri")
+            var scope = queryParam("scope")
+            var auth_id = queryParam("auth_id")
+
+            var href = "/api/v1/oauth/authorize?response_type=code&client_id=" + client_id
+            if (redirect_uri) {
+                href += "&redirect_uri=" + redirect_uri
+            }
+            if (scope) {
+                href += "&scope=" + scope
+            }
+            if (auth_id) {
+                href += "&auth_id=" + auth_id
+            }
+            location.href = href
+        }
+    </script>
+</head>
+<body>
+
+<form action="/api/v1/oauth/authorize">
+
+</form>
+
+<div class="container" style="width: 450px; margin-top: 15%; margin-right: 20%">
+    <div style="border: 1px solid red;">
+        <div class="col">
+            <span class="border">
+                <img src="http://via.placeholder.com/80x80"/>
+            </span>
+            <span class="border">
+                <img src="http://via.placeholder.com/80x80" onclick="authorize()">
+            </span>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

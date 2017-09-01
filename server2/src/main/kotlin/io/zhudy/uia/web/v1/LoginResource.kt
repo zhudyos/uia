@@ -1,35 +1,45 @@
 package io.zhudy.uia.web.v1
 
-import io.zhudy.uia.helper.JedisHelper
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.core.io.Resource
+import io.zhudy.uia.BizCodeException
+import io.zhudy.uia.UiaProperties
+import io.zhudy.uia.domain.User
+import io.zhudy.uia.service.UserService
+import io.zhudy.uia.web.RequestParamException
 import org.springframework.stereotype.Controller
 import spark.Request
 import spark.Response
-import spark.utils.IOUtils
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @Controller
 class LoginResource(
-        val jedisHelper: JedisHelper
+        val userService: UserService,
+        val ssoAuthentication: SsoAuthentication
 ) {
-
-    @Value("classpath:/templates/login.html")
-    lateinit var loginHtml: Resource
-
-    /**
-     * login html.
-     */
-    fun loginView(req: Request, resp: Response): Any {
-        return IOUtils.toString(loginHtml.inputStream)
-    }
 
     /**
      *
      */
     fun login(req: Request, resp: Response): Any {
-        return "success"
+        val username = req.queryParams("username") ?: throw RequestParamException("username")
+        val password = req.queryParams("password") ?: throw RequestParamException("password")
+        val redirectUri = req.queryParams("redirect_uri") ?: ""
+
+        val user: User
+        try {
+            user = userService.authenticate(username, password)
+        } catch (e: BizCodeException) {
+            var location = "${UiaProperties.loginHtmlUri}?username=$username"
+            if (redirectUri.isNotEmpty()) {
+                location += "&redirect_uri=$redirectUri"
+            }
+            location += "&err_code=${e.bizCode.code}"
+            resp.redirect(location)
+            return ""
+        }
+
+        ssoAuthentication.complete(req, resp, user)
+        return ""
     }
 }

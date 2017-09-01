@@ -9,11 +9,12 @@ spring:
 
 uia:
   redis_uri: redis://localhost:6379
+  login_html_uri: /login.html
+  confirm_html_uri: /confirm.html
   token:
     salt: 847b28a6-89bf-41be-96b8-f0c1a94a3353
   refresh_token:
     salt: 91445f93-8744-4bfa-96f4-0c944b7686c1
-  login_html_uri: /login.html
   weixin:
     apps:
       # weixin pc
