@@ -1,135 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
-    <title>Uia Login</title>
-    <style type="text/css" rel="stylesheet">
-        @import url(https://fonts.googleapis.com/css?family=Roboto:300);
-
-        .login-page {
-            width: 360px;
-            padding: 8% 0 0;
-            margin: auto;
-        }
-
-        .form {
-            position: relative;
-            z-index: 1;
-            background: #FFFFFF;
-            max-width: 360px;
-            margin: 0 auto 100px;
-            padding: 45px;
-            text-align: center;
-            box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
-        }
-
-        .form input {
-            font-family: "Roboto", sans-serif;
-            outline: 0;
-            background: #f2f2f2;
+    <title>Uia 登录</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap.min.css"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style rel="stylesheet">
+        #particles-js {
+            position: absolute;
             width: 100%;
-            border: 0;
-            margin: 0 0 15px;
-            padding: 15px;
-            box-sizing: border-box;
-            font-size: 14px;
+            height: 100%;
+            background-color: #22C32E;
         }
 
-        .form button {
-            font-family: "Roboto", sans-serif;
-            text-transform: uppercase;
-            outline: 0;
-            background: #4CAF50;
-            width: 100%;
-            border: 0;
-            padding: 15px;
-            color: #FFFFFF;
-            font-size: 14px;
-            -webkit-transition: all 0.3 ease;
-            transition: all 0.3 ease;
-            cursor: pointer;
-        }
-
-        .form button:hover, .form button:active, .form button:focus {
-            background: #43A047;
-        }
-
-        .form .message {
-            margin: 15px 0 0;
-            color: #b3b3b3;
-            font-size: 12px;
-        }
-
-        .form .message a {
-            color: #4CAF50;
-            text-decoration: none;
-        }
-
-        .form .register-form {
-            display: none;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        .container:before, .container:after {
-            content: "";
-            display: block;
-            clear: both;
-        }
-
-        .container .info {
-            margin: 50px auto;
-            text-align: center;
-        }
-
-        .container .info h1 {
-            margin: 0 0 15px;
-            padding: 0;
-            font-size: 36px;
-            font-weight: 300;
-            color: #1a1a1a;
-        }
-
-        .container .info span {
-            color: #4d4d4d;
-            font-size: 12px;
-        }
-
-        .container .info span a {
-            color: #000000;
-            text-decoration: none;
-        }
-
-        .container .info span .fa {
-            color: #EF3B3A;
-        }
-
-        body {
-            background: #76b852; /* fallback for old browsers */
-            background: -webkit-linear-gradient(right, #76b852, #8DC26F);
-            background: -moz-linear-gradient(right, #76b852, #8DC26F);
-            background: -o-linear-gradient(right, #76b852, #8DC26F);
-            background: linear-gradient(to left, #76b852, #8DC26F);
-            font-family: "Roboto", sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        .error {
-            color: red;
-        }
-
-        .visible {
-            display: block;
-        }
-
-        .hidden {
-            display: none;
+        .login-panel {
+            width: 400px;
+            margin-top: 20%;
+            margin-left: 60%;
+            padding: 40px;
+            background: #ffffff;
         }
     </style>
     <script>
@@ -152,8 +42,7 @@
             var errCode = queryParam("err_code");
             if (errCode) {
                 var n = document.querySelector(".e" + errCode);
-                n.classList.remove("hidden");
-                n.classList.add("visible");
+                n.classList.toggle("d-none");
             }
 
             if (errCode && errCode == '2011') {
@@ -161,26 +50,120 @@
             } else {
                 document.querySelector("#username").focus();
             }
+
+            // ========================================================================
+            particlesJS("particles-js", {
+                "particles": {
+                    "number": {
+                        "value": 100
+                    },
+                    "opacity": {
+                        "value": 0.5,
+                        "random": false,
+                        "anim": {
+                            "enable": false,
+                            "speed": 1,
+                            "opacity_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "size": {
+                        "value": 3,
+                        "random": true,
+                        "anim": {
+                            "enable": false,
+                            "speed": 40,
+                            "size_min": 0.1,
+                            "sync": false
+                        }
+                    },
+                    "line_linked": {
+                        "enable": true,
+                        "distance": 150,
+                        "color": "#ffffff",
+                        "opacity": 0.4,
+                        "width": 1
+                    }
+                },
+                "interactivity": {
+                    "detect_on": "canvas",
+                    "events": {
+                        "onhover": {
+                            "enable": true,
+                            "mode": "grab"
+                        },
+                        "onclick": {
+                            "enable": true,
+                            "mode": "push"
+                        },
+                        "resize": true
+                    }
+                }
+            });
         }
+
     </script>
 </head>
 <body>
 
-<div class="login-page">
-    <div class="form">
-        <form class="login-form" action="/login" method="post">
-            <input type="hidden" id="redirect_uri" name="redirect_uri">
+<!-- particles.js container -->
+<div id="particles-js"></div>
 
-            <input type="text" id="username" name="username" placeholder="邮箱">
-            <input type="password" id="password" name="password" placeholder="密码">
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-block">
+                    <form action="/login" method="post">
+                        <input type="hidden" id="redirect_uri" name="redirect_uri">
 
-            <div class="error e2000 hidden">帐户不存在</div>
-            <div class="error e2011 hidden">密码错误</div>
+                        <div class="form-group row">
+                            <input type="text" id="username" name="username" class="form-control" placeholder="邮箱">
+                            <span class="form-text text-danger d-none e2000">帐户不存在</span>
+                        </div>
+                        <div class="form-group row">
+                            <input type="password" id="password" name="password" class="form-control" placeholder="密码">
+                            <span class="form-text text-danger d-none e2011">密码错误</span>
+                        </div>
 
-            <button type="submit">登 录</button>
-        </form>
+                        <div class="form-group row">
+                            <button type="submit" class="btn btn-primary btn-block">登 录</button>
+                        </div>
+
+                        <div>
+                            <i class="fa fa-weixin fa-2x" aria-hidden="true"></i>
+                            <i class="fa fa-weibo fa-2x" aria-hidden="true"></i>
+                            <i class="fa fa-github fa-2x" aria-hidden="true"></i>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+
+<!--<div class="login-page">-->
+<!--<div class="form">-->
+<!--<form class="login-form" action="/login" method="post">-->
+<!--<input type="hidden" id="redirect_uri" name="redirect_uri">-->
+
+<!--<input type="text" id="username" name="username" placeholder="邮箱">-->
+<!--<input type="password" id="password" name="password" placeholder="密码">-->
+
+<!--<div class="error e2000 hidden">帐户不存在</div>-->
+<!--<div class="error e2011 hidden">密码错误</div>-->
+
+<!--<button type="submit">登 录</button>-->
+
+<!--<div style="padding-top: 20px;">-->
+<!--<i class="fa fa-weixin fa-2x" aria-hidden="true"></i>-->
+<!--<i class="fa fa-weibo fa-2x" aria-hidden="true"></i>-->
+<!--<i class="fa fa-github fa-2x" aria-hidden="true"></i>-->
+<!--</div>-->
+<!--</form>-->
+<!--</div>-->
+<!--</div>-->
 
 </body>
 </html>

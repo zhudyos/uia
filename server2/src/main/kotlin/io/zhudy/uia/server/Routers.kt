@@ -1,5 +1,6 @@
 package io.zhudy.uia.server
 
+import io.zhudy.uia.UiaProperties
 import io.zhudy.uia.service.OAuth2Service
 import io.zhudy.uia.web.filter.OAuth2CodeValidationFilter
 import io.zhudy.uia.web.filter.OAuth2SecurityFilter
@@ -27,12 +28,17 @@ class Routers(
 ) {
 
     init {
+        port(UiaProperties.port)
+
         staticFileLocation("/templates")
         post("/login", loginResource::login)
 
         // 获取 authorization_code
         before("/api/v1/oauth/authorize", oauth2CodeValidationFilter)
         before("/api/v1/oauth/authorize", securityFilter)
+
+        //
+        before("/api/v1/*", oauth2SecurityFilter())
 
         path("/api/v1") {
             path("/oauth") {
@@ -50,9 +56,13 @@ class Routers(
     }
 
     private fun oauth2SecurityFilter(): OAuth2SecurityFilter {
-        return OAuth2SecurityFilter(redisTemplate = redisTemplate, oauth2Service = oauth2Service, authUrls = mapOf(
-
-        ))
+        return OAuth2SecurityFilter(redisTemplate = redisTemplate,
+                oauth2Service = oauth2Service,
+                prefix = "/api/v1",
+                authUrls = mapOf(
+                        "/user" to 1
+                )
+        )
     }
 }
 

@@ -47,6 +47,9 @@ object JacksonUtils {
      * @param fields filterOutAllExcept
      */
     fun writeValueAsBytes(o: Any, fields: String): ByteArray {
+        if (fields.isEmpty()) {
+            return writeValueAsBytes(o)
+        }
         return filterOutAllExceptWriter(fields).writeValueAsBytes(o)
     }
 
@@ -59,13 +62,16 @@ object JacksonUtils {
      * @param fields filterOutAllExcept
      */
     fun writeValueAsString(o: Any, fields: String): String {
+        if (fields.isEmpty()) {
+            return writeValueAsString(o)
+        }
         return filterOutAllExceptWriter(fields).writeValueAsString(o)
     }
 
     private fun filterOutAllExceptWriter(fields: String): ObjectWriter {
         val filter = SimpleBeanPropertyFilter.filterOutAllExcept(fields.split(",").toSet())
         val provider = SimpleFilterProvider()
-        provider.defaultFilter = filter
+        provider.addFilter("filterOutAllExcept", filter)
         return objectMapper.writer(provider)
     }
 }

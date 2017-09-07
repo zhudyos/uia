@@ -7,7 +7,8 @@ import java.time.Duration
  */
 object UiaProperties {
 
-    lateinit var redisUri: String
+    var port: Int = 8080
+
     lateinit var loginHtmlUri: String
     lateinit var confirmHtmlUri: String
 

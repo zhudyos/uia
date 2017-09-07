@@ -8,6 +8,7 @@ import io.zhudy.uia.web.RequestParamException
 import org.springframework.stereotype.Controller
 import spark.Request
 import spark.Response
+import java.net.URLEncoder
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
@@ -32,7 +33,7 @@ class LoginResource(
         } catch (e: BizCodeException) {
             var location = "${UiaProperties.loginHtmlUri}?username=$username"
             if (redirectUri.isNotEmpty()) {
-                location += "&redirect_uri=$redirectUri"
+                location += "&redirect_uri=${URLEncoder.encode(redirectUri, "UTF-8")}"
             }
             location += "&err_code=${e.bizCode.code}"
             resp.redirect(location)

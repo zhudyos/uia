@@ -16,11 +16,20 @@ import spark.Response
 class OAuth2SecurityFilter(
         private val redisTemplate: StringRedisTemplate,
         private val oauth2Service: OAuth2Service,
-        private val authUrls: Map<String, Any>
+        private val prefix: String,
+        authUrls: Map<String, Any>
 ) : Filter {
 
+    private val inAuthUrls = hashMapOf<String, Any>()
+
+    init {
+        authUrls.entries.forEach {
+            inAuthUrls[prefix + it.key] = it.value
+        }
+    }
+
     override fun handle(request: Request, response: Response) {
-        if (!authUrls.containsKey(request.uri())) {
+        if (!inAuthUrls.containsKey(request.uri())) {
             return
         }
 

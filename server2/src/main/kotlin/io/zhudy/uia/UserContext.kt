@@ -5,6 +5,9 @@ package io.zhudy.uia
  */
 interface UserContext {
 
+    /**
+     *
+     */
     val uid: Long
         get
 }
