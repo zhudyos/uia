@@ -8,9 +8,8 @@ import java.time.Duration
 object UiaProperties {
 
     var port: Int = 8080
-
-    lateinit var loginHtmlUri: String
-    lateinit var confirmHtmlUri: String
+    var loginHtmlUri = ""
+    var confirmHtmlUri = ""
 
     val ssoToken = SsoToken
     val code = Code

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.module.kotlin.MissingKotlinParameterException
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
-import io.zhudy.uia.JacksonUtils
+import io.zhudy.uia.utils.JacksonUtils
 import io.zhudy.uia.web.OAuth2Exception
 import io.zhudy.uia.web.RequestParamException
 import io.zhudy.uia.web.ResponseStatusException

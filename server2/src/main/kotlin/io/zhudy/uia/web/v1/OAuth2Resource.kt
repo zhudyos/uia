@@ -4,6 +4,7 @@ import io.zhudy.uia.*
 import io.zhudy.uia.domain.Client
 import io.zhudy.uia.dto.*
 import io.zhudy.uia.service.OAuth2Service
+import io.zhudy.uia.utils.JacksonUtils
 import io.zhudy.uia.web.Constants
 import io.zhudy.uia.web.OAuth2Exception
 import kotlinx.coroutines.experimental.CommonPool

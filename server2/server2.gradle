@@ -20,6 +20,8 @@ project(":server2") {
         compile "org.springframework.data:spring-data-redis:1.8.6.RELEASE"
         compile "redis.clients:jedis:2.9.0"
 
+        compile "com.squareup.okhttp3:okhttp:3.9.0"
+
         testCompile "org.springframework.boot:spring-boot-starter-test:1.5.6.RELEASE"
     }
 

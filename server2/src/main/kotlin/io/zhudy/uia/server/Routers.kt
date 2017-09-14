@@ -8,9 +8,12 @@ import io.zhudy.uia.web.filter.SecurityFilter
 import io.zhudy.uia.web.v1.LoginResource
 import io.zhudy.uia.web.v1.OAuth2Resource
 import io.zhudy.uia.web.v1.UserResource
+import org.slf4j.MDC
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Component
+import spark.Filter
 import spark.Spark.*
+import java.util.*
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
@@ -32,6 +35,16 @@ class Routers(
 
         staticFileLocation("/templates")
         post("/login", loginResource::login)
+
+        // X-Request-ID 设置
+        before(Filter { request, response ->
+            var requestId = request.headers("X-Request-ID")
+            if (requestId.isNullOrEmpty()) {
+                requestId = UUID.randomUUID().toString().replace("-", "")
+            }
+            MDC.put("requestId", "[$requestId] ")
+            response.header("X-Request-ID", requestId)
+        })
 
         // 获取 authorization_code
         before("/api/v1/oauth/authorize", oauth2CodeValidationFilter)

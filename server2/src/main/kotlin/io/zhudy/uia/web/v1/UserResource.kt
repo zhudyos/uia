@@ -1,6 +1,6 @@
 package io.zhudy.uia.web.v1
 
-import io.zhudy.uia.JacksonUtils
+import io.zhudy.uia.utils.JacksonUtils
 import io.zhudy.uia.UserContext
 import io.zhudy.uia.service.UserService
 import io.zhudy.uia.web.Constants

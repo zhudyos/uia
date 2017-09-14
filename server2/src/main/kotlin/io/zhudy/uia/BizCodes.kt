@@ -39,6 +39,7 @@ enum class BizCodes(override val code: Int, override val msg: String) : BizCode 
      */
     C_2000(2000, "未发现指定 email 的用户"),
     C_2001(2001, "未发现指定 uid 的用户"),
+    C_2002(2002, "未发现指定的 unionid 的用户"),
     C_2011(2011, "password 不匹配"),
 
     /**

@@ -1,4 +1,4 @@
-package io.zhudy.uia
+package io.zhudy.uia.utils
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.databind.*

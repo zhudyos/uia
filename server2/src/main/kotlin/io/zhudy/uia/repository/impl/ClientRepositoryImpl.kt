@@ -4,7 +4,7 @@ import com.mongodb.MongoClient
 import com.mongodb.client.model.Filters.eq
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
-import io.zhudy.uia.JacksonUtils
+import io.zhudy.uia.utils.JacksonUtils
 import io.zhudy.uia.RedisKeys
 import io.zhudy.uia.domain.Client
 import io.zhudy.uia.repository.ClientRepository
