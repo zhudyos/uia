@@ -1,25 +1,32 @@
 package io.zhudy.uia.web.v1
 
-import io.undertow.server.HttpServerExchange
-import io.undertow.server.handlers.form.FormData
-import io.undertow.util.Headers
-import io.zhudy.uia.BizCodeException
-import io.zhudy.uia.BizCodes
-import io.zhudy.uia.dto.AuthorizationCodeGrantInfo
-import io.zhudy.uia.dto.OAuthToken
-import io.zhudy.uia.dto.PasswordGrantInfo
-import io.zhudy.uia.dto.RefreshTokenGrantInfo
+import io.zhudy.uia.*
+import io.zhudy.uia.domain.Client
+import io.zhudy.uia.dto.*
 import io.zhudy.uia.service.OAuth2Service
-import io.zhudy.uia.web.*
+import io.zhudy.uia.utils.JacksonUtils
+import io.zhudy.uia.web.OAuth2Exception
+import io.zhudy.uia.web.WebConstants
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Controller
+import spark.Request
+import spark.Response
+import java.net.URLEncoder
+import java.util.*
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @Controller
 class OAuth2Resource(
-        val oauth2Service: OAuth2Service
+        val oauth2Service: OAuth2Service,
+        @Qualifier("stringRedisTemplate")
+        val redisTemplate: StringRedisTemplate
 ) {
 
     private val log = LoggerFactory.getLogger(OAuth2Resource::class.java)
@@ -27,48 +34,68 @@ class OAuth2Resource(
     /**
      *
      */
-    fun authorize(exchange: HttpServerExchange) {
-        val responseType = exchange.queryParam("response_type") ?: ""
-        val state = exchange.queryParam("state") ?: ""
+    fun authorize(req: Request, resp: Response): String {
+        val responseType = req.queryParams("response_type") ?: ""
+        val state = req.queryParams("state") ?: ""
 
         when (responseType) {
             "code" -> {
-                val info = exchange.getAttachment(OAuth2AuthorizeBeforeHandler.CODE_ATTACHMENT_KEY)
-                // FIXME 完善
-                // 手动授权
+                val info = req.attribute<CodeAuthorizeInfo>(WebConstants.REQUEST_CODE_AUTHORIZE_INFO_KEY)
+                val client = req.attribute<Client>(WebConstants.REQUEST_AUTH_CLIENT)
 
-                // 自动授权
-                val (code, redirectUri) = oauth2Service.authorizeCode(info)
+                var authId = req.cookie(WebConstants.COOKIE_AUTH_ID)
+                if (!authId.isNullOrEmpty()) {
+                    if (client.confirm) {
+                        if (redisTemplate.getExpire(RedisKeys.oauth2_auth_id.key(authId)) <= 0) {
+                            authId = UUID.randomUUID().toString()
 
+                            // 5分钟后过期
+                            redisTemplate.opsForValue().set(RedisKeys.oauth2_auth_id.key(authId), "1", 5, TimeUnit.MINUTES)
+                            resp.cookie(WebConstants.COOKIE_AUTH_ID, authId)
+
+                            val redirectUri = URLEncoder.encode(info.redirectUri, "UTF-8")
+                            resp.redirect("${Config.confirmHtmlUri}?=client_id=${client.clientId}&redirect_uri=$redirectUri&scope=${info.scope}")
+                            return ""
+                        }
+                    }
+
+                    launch(CommonPool) {
+                        redisTemplate.delete(RedisKeys.oauth2_auth_id.key(authId))
+                    }
+                }
+
+                val userContext = req.attribute<UserContext>(WebConstants.REQUEST_USER_CONTEXT)
+                val (code, redirectUri) = oauth2Service.authorizeCode(info, userContext)
                 // redirect_uri
-                exchange.sendRedirect("$redirectUri?code=$code&state=$state")
+                resp.redirect("$redirectUri?code=$code&state=$state")
             }
         }
+        return ""
     }
 
-    fun token(exchange: HttpServerExchange) {
+    fun token(req: Request, resp: Response): String {
         try {
-            val formData = exchange.formData()
-            val grantType = formData.param("grant_type")
-
-            val oauthToken: OAuthToken
-            when (grantType) {
+            val grantType = req.queryParams("grant_type")
+            val oauthToken: OAuthToken = when (grantType) {
                 "authorization_code" -> {
-                    oauthToken = handleAuthorizationCode(formData)
+                    handleAuthorizationCode(req)
                 }
                 "password" -> {
-                    oauthToken = handlePassword(formData)
+                    handlePassword(req)
                 }
                 "refresh_token" -> {
-                    oauthToken = handleRefreshToken(formData)
+                    handleRefreshToken(req)
                 }
                 else -> {
                     throw OAuth2Exception(error = "unsupported_grant_type")
                 }
             }
 
-            exchange.responseHeaders.add(Headers.CACHE_CONTROL, "no-store").add(Headers.PRAGMA, "no-cache")
-            exchange.sendJson(oauthToken)
+            resp.header("cache-control", "no-store")
+            resp.header("pragma", "no-cache")
+
+            resp.header("content-type", "application/json; charset=UTF-8")
+            return JacksonUtils.writeValueAsString(oauthToken)
         } catch (e: BizCodeException) {
             when (e.bizCode) {
                 BizCodes.C_1000, BizCodes.C_1001 -> throw OAuth2Exception(error = "invalid_client", description = e.bizCode.msg)
@@ -79,14 +106,16 @@ class OAuth2Resource(
             log.error("授权失败", e)
             throw OAuth2Exception(error = "server_error", description = e.message ?: "")
         }
+
+        return ""
     }
 
-    fun handleAuthorizationCode(formData: FormData): OAuthToken {
-        val c = extractClient(formData)
+    fun handleAuthorizationCode(req: Request): OAuthToken {
+        val c = extractClient(req)
 
-        val redirectUri = formData.param("redirect_uri") ?: throw OAuth2Exception("invalid_request", "redirect_uri 不存在")
-        val code = formData.param("code") ?: throw OAuth2Exception("code", "code 不存在")
-        val scope = formData.param("scope") ?: ""
+        val redirectUri = req.queryParams("redirect_uri") ?: throw OAuth2Exception("invalid_request", "redirect_uri 不存在")
+        val code = req.queryParams("code") ?: throw OAuth2Exception("code", "code 不存在")
+        val scope = req.queryParams("scope") ?: ""
 
         return oauth2Service.grantCode(AuthorizationCodeGrantInfo(
                 clientId = c.first,
@@ -97,12 +126,12 @@ class OAuth2Resource(
         ))
     }
 
-    fun handlePassword(formData: FormData): OAuthToken {
-        val c = extractClient(formData)
+    fun handlePassword(req: Request): OAuthToken {
+        val c = extractClient(req)
 
-        val username = formData.param("username") ?: throw OAuth2Exception("invalid_request", "username 不存在")
-        val password = formData.param("password") ?: throw OAuth2Exception("invalid_request", "client_id 不存在")
-        val scope = formData.param("scope") ?: ""
+        val username = req.queryParams("username") ?: throw OAuth2Exception("invalid_request", "username 不存在")
+        val password = req.queryParams("password") ?: throw OAuth2Exception("invalid_request", "client_id 不存在")
+        val scope = req.queryParams("scope") ?: ""
 
         return oauth2Service.grantPassword(PasswordGrantInfo(
                 clientId = c.first,
@@ -113,11 +142,11 @@ class OAuth2Resource(
         ))
     }
 
-    fun handleRefreshToken(formData: FormData): OAuthToken {
-        val c = extractClient(formData)
+    fun handleRefreshToken(req: Request): OAuthToken {
+        val c = extractClient(req)
 
-        val refreshToken = formData.param("refresh_token") ?: throw OAuth2Exception("invalid_request", "refresh_token 不存在")
-        val scope = formData.param("scope") ?: ""
+        val refreshToken = req.queryParams("refresh_token") ?: throw OAuth2Exception("invalid_request", "refresh_token 不存在")
+        val scope = req.queryParams("scope") ?: ""
 
         return oauth2Service.grantRefreshToken(RefreshTokenGrantInfo(
                 clientId = c.first,
@@ -127,9 +156,9 @@ class OAuth2Resource(
         ))
     }
 
-    private fun extractClient(formData: FormData): Pair<String, String> {
-        val clientId = formData.param("client_id") ?: throw OAuth2Exception("invalid_client", "client_id 不存在")
-        val clientSecret = formData.param("client_secret") ?: throw OAuth2Exception("invalid_client", "client_secret 不存在")
+    private fun extractClient(req: Request): Pair<String, String> {
+        val clientId = req.queryParams("client_id") ?: throw OAuth2Exception("invalid_client", "client_id 不存在")
+        val clientSecret = req.queryParams("client_secret") ?: throw OAuth2Exception("invalid_client", "client_secret 不存在")
         return Pair(clientId, clientSecret)
     }
 }

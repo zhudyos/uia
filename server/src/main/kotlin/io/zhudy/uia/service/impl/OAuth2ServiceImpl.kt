@@ -3,13 +3,13 @@ package io.zhudy.uia.service.impl
 import io.zhudy.uia.*
 import io.zhudy.uia.domain.Client
 import io.zhudy.uia.dto.*
-import io.zhudy.uia.helper.JedisHelper
 import io.zhudy.uia.repository.ClientRepository
 import io.zhudy.uia.repository.UserRepository
 import io.zhudy.uia.service.OAuth2Service
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
 import org.hashids.Hashids
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import java.lang.management.ManagementFactory
@@ -23,14 +23,14 @@ class OAuth2ServiceImpl(
         val clientRepository: ClientRepository,
         val userRepository: UserRepository,
         val passwordEncoder: PasswordEncoder,
-        val jedisHelper: JedisHelper
+        val redisTemplate: StringRedisTemplate
 ) : OAuth2Service {
 
     val codeGen = Hashids("${ManagementFactory.getRuntimeMXBean().name}", 32)
-    val accessTokenGen = Hashids(UiaProperties.token.salt, 32)
-    val refreshTokenGen = Hashids(UiaProperties.refreshToken.salt, 32)
+    val accessTokenGen = Hashids(Config.token.salt, 32)
+    val refreshTokenGen = Hashids(Config.refreshToken.salt, 32)
 
-    override fun authorizeCheck(info: CodeAuthorizeInfo) {
+    override fun authorizeCheck(info: CodeAuthorizeInfo): Client {
         // client_id 是否存在
         val client = clientRepository.findByClient(info.clientId)
 
@@ -42,9 +42,10 @@ class OAuth2ServiceImpl(
                 throw BizCodeException(BizCodes.C_1002)
             }
         }
+        return client
     }
 
-    override fun authorizeCode(info: CodeAuthorizeInfo): Pair<String, String> {
+    override fun authorizeCode(info: CodeAuthorizeInfo, userContext: UserContext): Pair<String, String> {
         val client = clientRepository.findByClient(info.clientId)
         var redirectUri = info.redirectUri
         if (redirectUri.isEmpty()) {
@@ -57,19 +58,15 @@ class OAuth2ServiceImpl(
             throw IllegalStateException("生成的 oauth2 code 为空")
         }
 
-        val jedis = jedisHelper.jedis
-        val k = RedisKeys.oauth2_code.key(code)
+        val k = RedisKeys.oauth2_code.key(code).toByteArray()
 
         // 将信息缓存在 redis 中
-        val p = jedis.pipelined()
-        p.multi()
-        p.hset(k, "redirect_uri", redirectUri)
-        p.hset(k, "uid", UserContext.uid.toString())
-        p.hset(k, "client_id", info.clientId)
-        p.expire(k, UiaProperties.code.expiresIn)
-        p.exec()
-        p.close()
-        // FIXME 增加 log
+        redisTemplate.executePipelined {
+            it.hSet(k, "redirect_uri".toByteArray(), redirectUri.toByteArray())
+            it.hSet(k, "uid".toByteArray(), userContext.uid.toString().toByteArray())
+            it.hSet(k, "client_id".toByteArray(), info.clientId.toByteArray())
+            it.expire(k, Config.code.expiresIn)
+        }
 
         return Pair(code, redirectUri)
     }
@@ -84,23 +81,23 @@ class OAuth2ServiceImpl(
 
     override fun newOAuthToken(uid: Long, cid: Long): OAuthToken {
         val time = System.currentTimeMillis()
-        val token = OAuthToken(accessToken = accessTokenGen.encode(uid, cid, time + UiaProperties.token.expiresIn * 1000),
-                refreshToken = refreshTokenGen.encode(uid, cid, time + UiaProperties.refreshToken.expiresIn * 1000))
+        val token = OAuthToken(accessToken = accessTokenGen.encode(uid, cid, time + Config.token.expiresIn * 1000),
+                refreshToken = refreshTokenGen.encode(uid, cid, time + Config.refreshToken.expiresIn * 1000))
 
         // 添加 redis 缓存
         launch(CommonPool) {
-            val jedis = jedisHelper.jedis
-            jedis.setex(RedisKeys.oauth2_token.key(uid, cid), UiaProperties.token.expiresIn, token.accessToken)
-            jedis.setex(RedisKeys.oauth2_rtoken.key(uid, cid), UiaProperties.refreshToken.expiresIn, token.refreshToken)
+            val ops = redisTemplate.opsForValue()
+            ops.set(RedisKeys.oauth2_token.key(uid, cid), token.accessToken, Config.token.expiresIn)
+            ops.set(RedisKeys.oauth2_rtoken.key(uid, cid), token.refreshToken, Config.refreshToken.expiresIn)
         }
         return token
     }
 
     override fun grantCode(info: AuthorizationCodeGrantInfo): OAuthToken {
-        val jedis = jedisHelper.jedis
         val key = RedisKeys.oauth2_code.key(info.code)
-        val codeFields = jedis.hgetAll(key)
-        jedis.del(key) // 清理
+        val hashOps = redisTemplate.opsForHash<String, String>()
+        val codeFields = hashOps.entries(key)
+        redisTemplate.delete(key)
 
         if (codeFields.isEmpty()) {
             throw BizCodeException(BizCodes.C_3004)
@@ -140,7 +137,7 @@ class OAuth2ServiceImpl(
             throw BizCodeException(BizCodes.C_3002)
         }
 
-        val ttl = jedisHelper.jedis.ttl(RedisKeys.oauth2_rtoken.key(t.uid)) ?: 0
+        val ttl = redisTemplate.getExpire(RedisKeys.oauth2_rtoken.key(t.uid))
         if (ttl <= 0) { // refresh token 不存在或者已经过期
             throw BizCodeException(BizCodes.C_3001)
         }

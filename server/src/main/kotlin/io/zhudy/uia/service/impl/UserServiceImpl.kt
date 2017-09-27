@@ -17,6 +17,10 @@ class UserServiceImpl(
         val passwordEncoder: PasswordEncoder
 ) : UserService {
 
+    override fun save(user: User): Long {
+        return userRepository.save(user)
+    }
+
     override fun authenticate(username: String, password: String): User {
         val user = userRepository.findByEmail(username)
         if (!passwordEncoder.matches(password, user.password)) {
@@ -27,5 +31,9 @@ class UserServiceImpl(
 
     override fun findByUid(uid: Long): User {
         return userRepository.findByUid(uid)
+    }
+
+    override fun findByUnionid(unionid: String): User {
+        return userRepository.findByUnionid(unionid)
     }
 }

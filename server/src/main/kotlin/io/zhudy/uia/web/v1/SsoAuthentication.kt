@@ -1,53 +1,55 @@
 package io.zhudy.uia.web.v1
 
-import io.undertow.server.HttpServerExchange
-import io.undertow.server.handlers.CookieImpl
 import io.zhudy.uia.RedisKeys
-import io.zhudy.uia.UiaProperties
-import io.zhudy.uia.UserContextSetter
+import io.zhudy.uia.Config
+import io.zhudy.uia.UserContext
 import io.zhudy.uia.domain.User
-import io.zhudy.uia.helper.JedisHelper
-import io.zhudy.uia.web.formData
-import io.zhudy.uia.web.param
-import io.zhudy.uia.web.queryParam
-import io.zhudy.uia.web.sendRedirect
+import io.zhudy.uia.web.WebConstants
 import org.hashids.Hashids
+import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Component
+import spark.Request
+import spark.Response
 import java.net.URLDecoder
+import java.util.*
+import java.util.concurrent.TimeUnit
+import javax.servlet.http.Cookie
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @Component
 class SsoAuthentication(
-        val jedisHelper: JedisHelper
+        @Qualifier("stringRedisTemplate")
+        val redisTemplate: StringRedisTemplate
 ) {
 
-    val tokenGen = Hashids(UiaProperties.ssoToken.salt, UiaProperties.ssoToken.length)
+    val tokenGen = Hashids(Config.SsoToken.salt, Config.SsoToken.length)
 
     /**
      *
      */
-    fun validate(exchange: HttpServerExchange): Boolean {
-        val cookie = exchange.requestCookies[UiaProperties.ssoToken.cookie.name] ?: return false
-        cookie.value ?: return false
+    fun validate(req: Request, resp: Response): Boolean {
+        val ssoToken = req.cookie(Config.SsoToken.Cookie.name) ?: return false
 
         val uid: Long
         try {
-            val arr = tokenGen.decode(cookie.value)
+            val arr = tokenGen.decode(ssoToken)
             if (arr.isEmpty()) return false
             uid = arr[0]
         } catch (e: Exception) {
             return false
         }
 
-        val jedis = jedisHelper.jedis
-        val token = jedis[RedisKeys.sso_token.key(uid)]
-        val r = token != null && token == cookie.value
+        val token = redisTemplate.opsForValue()[RedisKeys.sso_token.key(uid)]
+        val r = token != null && token == ssoToken
 
         if (r) {
-            // 将 uid 设置至上下文中
-            UserContextSetter.uid.set(uid)
+            // 封闭 UserContext
+            req.attribute(WebConstants.REQUEST_USER_CONTEXT, object : UserContext {
+                override val uid: Long = uid
+            })
         }
         return r
     }
@@ -55,37 +57,45 @@ class SsoAuthentication(
     /**
      *
      */
-    fun complete(exchange: HttpServerExchange, user: User) {
+    fun complete(req: Request, resp: Response, user: User) {
         val token = tokenGen.encode(user.id, System.currentTimeMillis())
 
         // 设置单点登录 token
-        val ssoToken = UiaProperties.ssoToken
-        val c = CookieImpl(UiaProperties.ssoToken.cookie.name, token)
+        val ssoToken = Config.ssoToken
+
+        val rawResp = resp.raw()
+        val c = Cookie(ssoToken.cookie.name, token)
 
         // ====================== cookie 配置 ==========================
-        if (ssoToken.cookie.domain.isNotEmpty()) {
-            c.domain = ssoToken.cookie.domain
+        if (Config.SsoToken.Cookie.domain.isNotEmpty()) {
+            c.domain = Config.SsoToken.Cookie.domain
         }
-        if (ssoToken.cookie.maxAge > 0) {
-            c.maxAge = ssoToken.cookie.maxAge
+        if (Config.SsoToken.Cookie.maxAge > 0) {
+            c.maxAge = Config.SsoToken.Cookie.maxAge
         }
-        if (ssoToken.cookie.path.isNotEmpty()) {
-            c.path = ssoToken.cookie.path
+        if (Config.SsoToken.Cookie.path.isNotEmpty()) {
+            c.path = Config.SsoToken.Cookie.path
         }
-        if (ssoToken.cookie.httpOnly) {
+        if (Config.SsoToken.Cookie.httpOnly) {
             c.isHttpOnly = true
         }
-        if (ssoToken.cookie.secure) {
-            c.isSecure = true
+        if (Config.SsoToken.Cookie.secure) {
+            c.secure = true
         }
-        exchange.setResponseCookie(c)
+        rawResp.addCookie(c)
+
+        // 登录完成自动设置 AUTH_ID
+        val authId = UUID.randomUUID().toString()
+        resp.cookie(WebConstants.COOKIE_AUTH_ID, authId)
+        // 5分钟后过期
+        redisTemplate.opsForValue().set(RedisKeys.oauth2_auth_id.key(authId), "1", 5, TimeUnit.MINUTES)
 
         // 缓存 sso_token
-        jedisHelper.jedis.setex(RedisKeys.sso_token.key(user.id), ssoToken.expiresIn, token)
+        redisTemplate.opsForValue().set(RedisKeys.sso_token.key(user.id), token, Config.SsoToken.expiresIn, TimeUnit.SECONDS)
 
-        val redirect_uri = exchange.formData()?.param("redirect_uri") ?: ""
+        val redirect_uri = req.queryParams("redirect_uri") ?: ""
         if (redirect_uri.isNotEmpty()) {
-            exchange.sendRedirect(URLDecoder.decode(redirect_uri, Charsets.UTF_8.name()))
+            resp.redirect(URLDecoder.decode(redirect_uri, Charsets.UTF_8.name()))
         }
     }
 }

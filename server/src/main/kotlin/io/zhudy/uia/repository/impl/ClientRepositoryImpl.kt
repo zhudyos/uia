@@ -4,13 +4,13 @@ import com.mongodb.MongoClient
 import com.mongodb.client.model.Filters.eq
 import io.zhudy.uia.BizCodeException
 import io.zhudy.uia.BizCodes
-import io.zhudy.uia.JacksonUtils
+import io.zhudy.uia.utils.JacksonUtils
 import io.zhudy.uia.RedisKeys
 import io.zhudy.uia.domain.Client
-import io.zhudy.uia.helper.JedisHelper
 import io.zhudy.uia.repository.ClientRepository
+import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Repository
-import java.time.Duration
+import java.util.concurrent.TimeUnit
 
 /**
  * @author Kevin Zou <kevinz@weghst.com>
@@ -18,15 +18,15 @@ import java.time.Duration
 @Repository
 class ClientRepositoryImpl(
         mongoClient: MongoClient,
-        val jedisHelper: JedisHelper
+        val redisTemplate: StringRedisTemplate
 ) : ClientRepository {
 
     val coll = mongoClient.getDatabase("uia").getCollection("client")!!
 
     override fun findByClient(clientId: String): Client {
         val ckey = RedisKeys.client_repo.key(clientId)
-        val jedis = jedisHelper.jedis
-        val cacheClient = jedis[ckey]
+        val valOps = redisTemplate.opsForValue()
+        val cacheClient = valOps[ckey]
 
         if (cacheClient != null && cacheClient.isNotEmpty()) {
             return JacksonUtils.objectMapper.readValue(cacheClient, Client::class.java)
@@ -38,11 +38,12 @@ class ClientRepositoryImpl(
                 clientId = doc.getString("client_id") ?: "",
                 clientSecret = doc.getString("client_secret") ?: "",
                 redirectUri = doc.getString("redirect_uri") ?: "",
-                scope = doc.getString("scope") ?: ""
+                scope = doc.getString("scope") ?: "",
+                confirm = doc.getBoolean("confirm") ?: true
         )
 
         // 将 client 加入缓存
-        jedis.setex(ckey, Duration.ofDays(7).seconds.toInt(), JacksonUtils.objectMapper.writeValueAsString(client))
+        valOps.set(ckey, JacksonUtils.writeValueAsString(client), 7, TimeUnit.DAYS)
         return client
     }
 }

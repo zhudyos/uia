@@ -20,6 +20,10 @@ object RedisKeys {
      */
     val client_repo = RedisKey("client_repo")
     /**
+     * 授权流水 ID.
+     */
+    val oauth2_auth_id = RedisKey("oauth2:auth_id")
+    /**
      * oauth2 authorization code.
      */
     val oauth2_code = RedisKey("oauth2:code")

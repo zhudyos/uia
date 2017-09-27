@@ -5,7 +5,7 @@ import java.time.Duration
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
-object UiaProperties {
+object Config {
 
     var port: Int = 8080
     var loginHtmlUri = ""

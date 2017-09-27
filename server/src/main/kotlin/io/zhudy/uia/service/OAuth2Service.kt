@@ -1,5 +1,7 @@
 package io.zhudy.uia.service
 
+import io.zhudy.uia.UserContext
+import io.zhudy.uia.domain.Client
 import io.zhudy.uia.dto.*
 
 /**
@@ -10,12 +12,12 @@ interface OAuth2Service {
     /**
      *
      */
-    fun authorizeCheck(info: CodeAuthorizeInfo)
+    fun authorizeCheck(info: CodeAuthorizeInfo): Client
 
     /**
      *
      */
-    fun authorizeCode(info: CodeAuthorizeInfo): Pair<String, String>
+    fun authorizeCode(info: CodeAuthorizeInfo, userContext: UserContext): Pair<String, String>
 
     /**
      *

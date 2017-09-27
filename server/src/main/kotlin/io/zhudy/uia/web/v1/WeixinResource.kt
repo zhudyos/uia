@@ -1,63 +1,80 @@
 package io.zhudy.uia.web.v1
 
-import io.undertow.server.HttpServerExchange
-import io.zhudy.uia.JacksonUtils
-import io.zhudy.uia.UiaProperties
-import io.zhudy.uia.dto.WeixinAccessToken
+import io.zhudy.uia.BizCodeException
+import io.zhudy.uia.BizCodes
+import io.zhudy.uia.Config
+import io.zhudy.uia.domain.User
+import io.zhudy.uia.domain.UserSource
+import io.zhudy.uia.domain.Weixin
 import io.zhudy.uia.service.OAuth2Service
+import io.zhudy.uia.service.UserService
+import io.zhudy.uia.utils.WeixinUtils
 import io.zhudy.uia.web.RequestParamException
-import io.zhudy.uia.web.queryParam
-import io.zhudy.uia.web.sendJson
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Controller
+import spark.Request
+import spark.Response
 
 /**
  * @author Kevin Zou (kevinz@weghst.com)
  */
 @Controller
 class WeixinResource(
-        val oauth2Service: OAuth2Service
+        val userService: UserService,
+        val oauth2Service: OAuth2Service,
+        val ssoAuthentication: SsoAuthentication
 ) {
     val log = LoggerFactory.getLogger(WeixinResource::class.java)
-    val httpClient = OkHttpClient.Builder().build()
 
-    fun handle(exchange: HttpServerExchange) {
-        val label = exchange.queryParam("label") ?: throw RequestParamException("label")
-        val code = exchange.queryParam("code") ?: throw RequestParamException("code")
-        val token = getAccessToken(code, label)
+    fun handle(req: Request, resp: Response) {
+        val label = req.params("label") ?: throw RequestParamException("label")
+        val code = req.queryParams("code") ?: throw RequestParamException("code")
 
-        val info = getUserInfo(token)
-        exchange.sendJson(info)
-    }
+        val app = Config.weixin.apps[label]
+        val appid = app?.get("app_id") ?: throw IllegalArgumentException("weixin 缺少标签")
+        val appSecret = app?.get("app_secret") ?: throw IllegalArgumentException("")
+        val token = WeixinUtils.getAccessToken(appid, appSecret, code)
+        val profile = WeixinUtils.getProfile(token)
 
-    fun getAccessToken(code: String, label: String): WeixinAccessToken {
-        val app = UiaProperties.weixin.apps[label]
-        val appId = app!!["app_id"]
-        val appSecret = app["app_secret"]
-        val req = Request.Builder().get()
-                .url("https://api.weixin.qq.com/sns/oauth2/access_token?appid=$appId&secret=$appSecret&code=$code&grant_type=authorization_code")
-                .build()
-        val resp = httpClient.newCall(req).execute()
-        if (!resp.isSuccessful) {
+        log.debug("weixin profile: {}", profile)
 
+        if (profile.unionid.isNotEmpty()) {
+            var user: User
+            try {
+                user = userService.findByUnionid(profile.unionid)
+            } catch (e: BizCodeException) {
+                when (e.bizCode) {
+                    BizCodes.C_2002 -> {
+                        user = User(
+                                source = UserSource.WEIXIN,
+                                weixin = Weixin(
+                                        appid = appid,
+                                        openid = profile.openid,
+                                        unionid = profile.unionid
+                                )
+                        )
+                        val uid = userService.save(user)
+                        log.debug("weixin save user success. uid: {}", uid)
+
+                        user = userService.findByUid(uid)
+                    }
+                    else -> {
+                        throw e
+                    }
+                }
+            }
+
+            ssoAuthentication.complete(req, resp, user)
+            return
         }
-        val token = JacksonUtils.objectMapper.readValue(resp.body()!!.string(), WeixinAccessToken::class.java)
+        log.warn("weixin 用户没有 unionid - {}", profile)
 
-        // ==
-        return token
-    }
-
-    private fun getUserInfo(token: WeixinAccessToken): String {
-        val req = Request.Builder().get()
-                .url("https://api.weixin.qq.com/sns/userinfo?access_token=${token.accessToken}&openid=${token.openid}")
-                .build()
-        val resp = httpClient.newCall(req).execute()
-        if (!resp.isSuccessful) {
-
-        }
-        val info = resp.body()!!.string()
-        return info
+//        ssoAuthentication.complete(req, resp)
+//        val label = exchange.queryParam("label") ?: throw RequestParamException("label")
+//        val code = exchange.queryParam("code") ?: throw RequestParamException("code")
+//        val token = getAccessToken(code, label)
+//
+//        val info = getUserInfo(token)
+//        exchange.sendJson(info)
     }
 }
